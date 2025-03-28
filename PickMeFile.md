@@ -30,3 +30,23 @@ teaching team will follow your instructions to compile and run your game.
 - A video (at most 3 minutes long) demonstrating the implemented features of your game.
 o You can either submit a link to the video or upload it to Moodle.
 o Video clips after 3 mins will be ignored if your demo is longer than 3 mins.
+
+Delegate roles:
+1. Interface
+Main menu (Ilyas)
+Map generation, ships generation (Yera)
+2. Algorithm of solving
+The function of computer playing (Aleksandr)
+4. AI 
+Ai integration for a different (Yera + Altynai) 
+5. Gameplay (Algorithm of playing) 
+Main function (Milan + Mltynay)
+The structure of the game.
+6. Data 
+Authentification/ scoreboard (Milan)
+
+Difficulty:
+1. Random shoot + random positioning
+2. Random/ simple logic + simple positioning
+3. Full algorithm
+4. AI 
