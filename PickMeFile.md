@@ -33,17 +33,19 @@ o Video clips after 3 mins will be ignored if your demo is longer than 3 mins.
 
 Delegate roles:
 1. Interface
-Main menu (Ilyas)
-Map generation, ships generation (Yera)
-2. Algorithm of solving
-The function of computer playing (Aleksandr)
+Main menu + animations (Ilyas)
+User ship placement UI (Aleks)
+3. Algorithm of solving
+The function of computer playing (Yera + Altynai)
 4. AI 
 Ai integration for a different (Yera + Altynai) 
 5. Gameplay (Algorithm of playing) 
-Main function (Milan + Mltynay)
+Main function (Altynay)
 The structure of the game.
 6. Data 
 Authentification/ scoreboard (Milan)
+7. Multiplayer (Milan + Aleks)
+
 
 Difficulty:
 1. Random shoot + random positioning
