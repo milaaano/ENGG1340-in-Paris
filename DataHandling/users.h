@@ -6,23 +6,30 @@
 #include <iomanip>
 #include <unordered_map>
 #include <vector>
+#include "constants.h"
 
-using namespace std;
+extern unordered_map<char, ll> alphabet;
 
-long long makePasswordHash(const string & password);
+extern vector<ll> powers;
+
+ll makePasswordHash(const string & password);
 
 struct User {
 private:
     string name;
-    long long passwordHash;
+    ll passwordHash;
 public:
-    int id, score;
+    int score;
 
-    User(int id, string name, string password, int score) : id(id), name(name), score(score) {
+    User() : name(""), passwordHash(0), score(0) {}
+
+    User(string name, string password, int score) : name(name), score(score) {
         passwordHash = makePasswordHash(password);
     }
 
-    void getPasswordHash(long long & Hash) {
+    User(string name, ll hashed_password, int score) : name(name), passwordHash(hashed_password), score(score) {}
+
+    void getPasswordHash(ll & Hash) {
         Hash = passwordHash;
     }
     void getName(string & name) {
@@ -49,8 +56,6 @@ using Leaderboard = vector<User*>;
 
 // ----DB handling----
 
-void ensureLocalDB(const string& tpl, const string & db); // In the first run creates local db. For consequtive runs cheks existance of db
-
 Users buildUsers(const string& path); // builds users in live db
 
 void saveUsers(const string & path, const Users & users); // atomic save
@@ -71,6 +76,6 @@ void printLeaderboard(const Leaderboard & leaderboard);
 
 void clearScreen();
 
-string Encrypt(const strint & data, const string & key);
+void Encrypt(string & data, const string & key);
 
 #endif
