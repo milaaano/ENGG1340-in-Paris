@@ -34,10 +34,10 @@ public:
 
     User(string name, ll hashed_password, int score) : name(name), passwordHash(hashed_password), score(score) {}
 
-    ll getPasswordHash() {
+    ll getPasswordHash() const {
         return passwordHash;
     }
-    string getName() {
+    string getName() const {
         return name;
     }
     void setPassword(string & password) {
@@ -46,9 +46,9 @@ public:
     void setName(string & name) {
         this->name = name;
     }
-    void printUser(User * & user, int rank) {
+    void printUser(int rank) const {
         cout << left;
-        cout << setw(4) << rank << "  " << setw(10) << user->name << "  " << setw(5) << score << '\n';
+        cout << setw(4) << rank << "  " << setw(10) << name << "  " << setw(5) << score << '\n';
     }
 
     bool operator < (const User & other) const {

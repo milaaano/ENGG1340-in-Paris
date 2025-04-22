@@ -50,7 +50,8 @@ ll makePasswordHash(const string & password) {
 
 void Encrypt(string & data, const string & key) {
     int l = key.length();
-    for (int i = 0; i < l; i++) {
+    int n = data.length();
+    for (int i = 0; i < n; i++) {
         data[i] ^= key[i % l];
     }
 }
@@ -59,7 +60,7 @@ Users buildUsers(const string& path) {
     ifstream ifs;
     ifs.open(path.c_str());
     if (ifs.fail()) {
-        cout << "Error in file opening" << '\n';
+        cout << "Error in file opening\n";
         exit(1);
     }
 
@@ -69,7 +70,6 @@ Users buildUsers(const string& path) {
     ll password_hash;
     int score;
     while (getline(ifs, line)) {
-        Encrypt(line, CryptoKey);
 
         for (char& ch : line) {
             if (ch == ',') {
@@ -84,26 +84,43 @@ Users buildUsers(const string& path) {
         User cur_user(name, password_hash, score);
         users[name] = cur_user;
     }
+    ifs.close();
 
     return users;
 }
 
 
-// void saveUsers(const string & path, const Users & users) {
-//     string tmp = path + ".tmp";
-//     ofstream ofs;
-//     ofs.open(tmp.c_str());
-//     if (ofs.fail()) {
-//         cout << "Can't open the tmp file" << '\n';
-//         exit(1);
-//     }
+void saveUsers(const string & path, const Users & users) {
+    string tmp = path;
+    ofstream ofs;
+    ofs.open(tmp.c_str());
+    if (ofs.fail()) {
+        cout << "Can't open the tmp file" << '\n';
+        exit(1);
+    }
 
-//     string line = "";
-//     for (User & user : users) {
-//         line += user.getName() + 
-//     }
-// }
+    for (const auto & pair : users) {
+        const User &u = pair.second;
+        string line = u.getName() + "," + to_string(u.getPasswordHash()) + "," + to_string(u.score);
+        cout << "before:   " << line << '\n';
+        cout << "after:   " << line << '\n';
+        ofs << line << '\n';
+    }
+    ofs.close();
+}
 
 int main() {
-
-}
+    // Users users;
+    // string s = "";
+    // for (int i = 0; i < 10; i++) {
+    //     s.push_back('a' + i);
+    //     User user(s, "bdiorhbghdior", i);
+    //     users[s] = user;
+    // }
+    // saveUsers("/Users/macbook/ProgrammingProjects/ENGG1340-in-Paris/Data/users.db", users);
+    // Users hello = buildUsers("/Users/macbook/ProgrammingProjects/ENGG1340-in-Paris/Data/users.db");
+    // for (const auto & el : hello) {
+    //     cout << "current user:    ";
+    //     el.second.printUser(52);
+    // }
+}  --
