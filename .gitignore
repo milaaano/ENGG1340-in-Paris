@@ -33,6 +33,3 @@
 
 # Directories
 .vscode
-
-# Ignore local db
-Data/users.db
