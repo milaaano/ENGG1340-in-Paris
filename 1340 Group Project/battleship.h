@@ -10,7 +10,7 @@ extern const int SHIP;
 extern const int HIT;
 extern const int MISS;
 extern const int NUM_SHIPS;
-extern const int SHIP_SIZES[]; // Note: Size isn't specified here
+extern const int SHIP_SIZES[];
 
 extern int playerBoard[][10];
 extern int enemyBoard[][10];
@@ -28,4 +28,4 @@ void playerTurn();
 void enemyTurn();
 bool isGameOver(int board[][10]);
 
-#endif // BATTLESHIP_H
+#endif
