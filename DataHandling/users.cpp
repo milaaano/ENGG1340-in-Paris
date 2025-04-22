@@ -4,11 +4,23 @@
 #include <sstream>
 #include "constants.h"
 
-// fill alphabet
+string makeSalt() {
+    int ln = 8;
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> dis(1, 127);
+    string salt = "";
+    for (int i = 0; i < 8; i++) {
+        salt += (char)(dis(gen));
+    }
+    return salt;
+}
+
+// fill alphabet with chars from 1 to 127 (included)
 unordered_map<char, ll> fillAlphabet() {
     unordered_map<char, ll> alphabet;
-    for (int i = 0; i < 128; i++) {
-        alphabet[(char)i] = i + 1;
+    for (int i = 1; i < 128; i++) {
+        alphabet[(char)i] = i;
     }
     return alphabet;
 }
@@ -77,9 +89,20 @@ Users buildUsers(const string& path) {
 }
 
 
-void saveUsers(const string & path, const Users & users) {
-    
-}
+// void saveUsers(const string & path, const Users & users) {
+//     string tmp = path + ".tmp";
+//     ofstream ofs;
+//     ofs.open(tmp.c_str());
+//     if (ofs.fail()) {
+//         cout << "Can't open the tmp file" << '\n';
+//         exit(1);
+//     }
+
+//     string line = "";
+//     for (User & user : users) {
+//         line += user.getName() + 
+//     }
+// }
 
 int main() {
 

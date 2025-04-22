@@ -6,13 +6,18 @@
 #include <iomanip>
 #include <unordered_map>
 #include <vector>
+#include <random>
 #include "constants.h"
 
 extern unordered_map<char, ll> alphabet;
 
 extern vector<ll> powers;
 
+string makeSalt();
+
 ll makePasswordHash(const string & password);
+
+ll gtSaltedHash(const string & password, const string & salt);
 
 struct User {
 private:
@@ -29,11 +34,11 @@ public:
 
     User(string name, ll hashed_password, int score) : name(name), passwordHash(hashed_password), score(score) {}
 
-    void getPasswordHash(ll & Hash) {
-        Hash = passwordHash;
+    ll getPasswordHash() {
+        return passwordHash;
     }
-    void getName(string & name) {
-        name = this->name;
+    string getName() {
+        return name;
     }
     void setPassword(string & password) {
         passwordHash = makePasswordHash(password);
