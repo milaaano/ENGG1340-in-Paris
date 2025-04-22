@@ -4,6 +4,8 @@
 #include <sstream>
 #include "constants.h"
 
+bool leaderboardDirtyBit = false;
+
 string makeSalt() {
     int ln = 8;
     random_device rd;
@@ -109,6 +111,40 @@ void saveUsers(const string & path, const Users & users) {
     ofs.close();
 }
 
+pair<bool, string> registerUser(Users & users, const string & username, const string & password) {
+    pair<bool, string> response = {true, "Successful registration!"};
+    if (users.find(username) != users.end()) {
+        response.first = false;
+        response.second = "User " + username + " already exists!\n";
+        return response;
+    }
+    for (int i = 0; i < username.length(); i++) {
+        if (username[i] > 127 || username[i] < 1) {
+            response.first = false;
+            response.second = "Invalid password!\n";
+            return response;
+        }
+    }
+    users[username] = User(username, password, 0);
+    leaderboardDirtyBit = true;
+    return response;
+}
+
+
+pair<bool, string> loginUser(const Users & users, const string & username, const string & password, User * & logged_user) {
+    auto it = users.find(username);
+    if (it == users.end()) {
+        return {false, "No users with username" + username + "!"};
+    }
+    ll attempt = makePasswordHash(password);
+    if (attempt != it->second.getPasswordHash()) {
+        return {false, "Wrong password!"};
+    }
+    User u = it->second;
+    logged_user = &u;
+    return {true, "Successfull login!"};
+}
+
 int main() {
     // Users users;
     // string s = "";
@@ -123,4 +159,4 @@ int main() {
     //     cout << "current user:    ";
     //     el.second.printUser(52);
     // }
-}  --
+}

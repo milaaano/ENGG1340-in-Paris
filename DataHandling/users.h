@@ -67,9 +67,9 @@ void saveUsers(const string & path, const Users & users); // atomic save
 
 // ----Login/registration----
 
-bool registerUser(Users & users, const string & username, const string & password);
+pair<bool, string> registerUser(Users & users, const string & username, const string & password);
 
-bool loginUser(const Users & users, const string & username, const string & password, User * & logged_user);
+pair<bool, string> loginUser(const Users & users, const string & username, const string & password, User * & logged_user);
 
 // ----Leaderboard----
 
