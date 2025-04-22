@@ -12,16 +12,19 @@ string makeSalt() {
     mt19937 gen(rd());
     uniform_int_distribution<> dis(1, 127);
     string salt = "";
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; i++)
+    {
         salt += (char)(dis(gen));
     }
     return salt;
 }
 
 // fill alphabet with chars from 1 to 127 (included)
-unordered_map<char, ll> fillAlphabet() {
+unordered_map<char, ll> fillAlphabet()
+{
     unordered_map<char, ll> alphabet;
-    for (int i = 1; i < 128; i++) {
+    for (int i = 1; i < 128; i++)
+    {
         alphabet[(char)i] = i;
     }
     return alphabet;
@@ -30,9 +33,11 @@ unordered_map<char, ll> fillAlphabet() {
 unordered_map<char, ll> alphabet = fillAlphabet();
 
 // fill powers
-vector<ll> makePowers() {
+vector<ll> makePowers()
+{
     vector<ll> powers(20, 1);
-    for (int i = 1; i < 20; i++) {
+    for (int i = 1; i < 20; i++)
+    {
         powers[i] = (powers[i - 1] * k) % p;
     }
     return powers;
@@ -41,16 +46,19 @@ vector<ll> makePowers() {
 vector<ll> powers = makePowers();
 
 // password is no longer than 20 symbols
-ll makePasswordHash(const string & password) {
+ll makePasswordHash(const string &password)
+{
     int n = password.length();
     ll hash = 0;
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++)
+    {
         hash = (((hash * k) % p) + alphabet[password[i]]) % p;
     }
     return hash;
 }
 
-void Encrypt(string & data, const string & key) {
+void Encrypt(string &data, const string &key)
+{
     int l = key.length();
     int n = data.length();
     for (int i = 0; i < n; i++) {
@@ -58,7 +66,8 @@ void Encrypt(string & data, const string & key) {
     }
 }
 
-Users buildUsers(const string& path) {
+Users buildUsers(const string &path)
+{
     ifstream ifs;
     ifs.open(path.c_str());
     if (ifs.fail()) {
@@ -73,8 +82,10 @@ Users buildUsers(const string& path) {
     int score;
     while (getline(ifs, line)) {
 
-        for (char& ch : line) {
-            if (ch == ',') {
+        for (char &ch : line)
+        {
+            if (ch == ',')
+            {
                 ch = ' ';
             }
         }
@@ -90,7 +101,6 @@ Users buildUsers(const string& path) {
 
     return users;
 }
-
 
 void saveUsers(const string & path, const Users & users) {
     string tmp = path;
