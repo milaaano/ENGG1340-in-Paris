@@ -17,10 +17,6 @@ const int MISS = 3;
 const int NUM_SHIPS = 5;
 const int SHIP_SIZES[NUM_SHIPS] = {5, 4, 3, 3, 2};
 
-int playerBoard[BOARD_SIZE][BOARD_SIZE];
-int enemyBoard[BOARD_SIZE][BOARD_SIZE];
-int enemyDisplay[BOARD_SIZE][BOARD_SIZE];
-
 void initializeBoard(int board[BOARD_SIZE][BOARD_SIZE])
 {
     for (int i = 0; i < BOARD_SIZE; i++)
@@ -90,7 +86,7 @@ void placeShip(int board[BOARD_SIZE][BOARD_SIZE], int row, int col, int size, in
     }
 }
 
-void placeEnemyShips()
+void placeRandomShips(int board[BOARD_SIZE][BOARD_SIZE])
 {
     for (int i = 0; i < NUM_SHIPS; i++)
     {
@@ -109,9 +105,9 @@ void placeEnemyShips()
             if (edgeBias < 70 && (row > 2 && row < 7 && col > 2 && col < 7))
                 continue;
 
-            if (isPlacementValid(enemyBoard, row, col, size, dRow, dCol))
+            if (isPlacementValid(board, row, col, size, dRow, dCol))
             {
-                placeShip(enemyBoard, row, col, size, dRow, dCol);
+                placeShip(board, row, col, size, dRow, dCol);
                 placed = true;
             }
         }
@@ -124,7 +120,7 @@ void getCoordinates(string input, int &row, int &col)
     row = stoi(input.substr(1)) - 1;
 }
 
-void placePlayerShips()
+void placePlayerShips(int playerBoard[BOARD_SIZE][BOARD_SIZE])
 {
     for (int i = 0; i < NUM_SHIPS; i++)
     {
@@ -167,7 +163,7 @@ void placePlayerShips()
     }
 }
 
-void playerTurn()
+void humanTurn(int displayBoard[BOARD_SIZE][BOARD_SIZE], int targetBoard[BOARD_SIZE][BOARD_SIZE])
 {
     string input;
     int row, col;
@@ -177,7 +173,8 @@ void playerTurn()
     if (input.length() < 2 || !isalpha(input[0]) || !isdigit(input[1]))
     {
         cout << "Invalid input. Try again.\n";
-        playerTurn();
+        int temp_row, temp_col;
+        humanTurn(displayBoard, targetBoard);
         return;
     }
 
@@ -186,31 +183,31 @@ void playerTurn()
     if (row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE)
     {
         cout << "Out of bounds. Try again.\n";
-        playerTurn();
+        humanTurn(displayBoard, targetBoard);
         return;
     }
 
-    if (enemyDisplay[row][col] != EMPTY)
+    if (displayBoard[row][col] != EMPTY)
     {
         cout << "Already targeted. Try again.\n";
-        playerTurn();
+        humanTurn(displayBoard, targetBoard);
         return;
     }
 
-    if (enemyBoard[row][col] == SHIP)
+    if (targetBoard[row][col] == SHIP)
     {
         cout << "Hit!\n";
-        enemyDisplay[row][col] = HIT;
-        enemyBoard[row][col] = HIT;
+        displayBoard[row][col] = HIT;
+        targetBoard[row][col] = HIT;
     }
     else
     {
         cout << "Miss.\n";
-        enemyDisplay[row][col] = MISS;
+        displayBoard[row][col] = MISS;
     }
 }
 
-void enemyTurn()
+void randomTurn(int targetBoard[BOARD_SIZE][BOARD_SIZE])
 {
     int row, col;
     bool fired = false;
@@ -218,17 +215,17 @@ void enemyTurn()
     {
         row = rand() % BOARD_SIZE;
         col = rand() % BOARD_SIZE;
-        if (playerBoard[row][col] == EMPTY || playerBoard[row][col] == SHIP)
+        if (targetBoard[row][col] == EMPTY || targetBoard[row][col] == SHIP)
         {
-            if (playerBoard[row][col] == SHIP)
+            if (targetBoard[row][col] == SHIP)
             {
                 cout << "Enemy hit your ship at " << char('A' + col) << row + 1 << "!\n";
-                playerBoard[row][col] = HIT;
+                targetBoard[row][col] = HIT;
             }
             else
             {
                 cout << "Enemy missed at " << char('A' + col) << row + 1 << ".\n";
-                playerBoard[row][col] = MISS;
+                targetBoard[row][col] = MISS;
             }
             fired = true;
         }
@@ -251,13 +248,17 @@ bool isGameOver(int board[BOARD_SIZE][BOARD_SIZE])
 int main_gameplay_loop()
 {
     srand(time(0));
+    int playerBoard[BOARD_SIZE][BOARD_SIZE];
+    int enemyBoard[BOARD_SIZE][BOARD_SIZE];
+    int enemyDisplay[BOARD_SIZE][BOARD_SIZE];
+
     initializeBoard(playerBoard);
     initializeBoard(enemyBoard);
     initializeBoard(enemyDisplay);
 
     cout << "\nPlace your ships:\n";
-    placePlayerShips();
-    placeEnemyShips();
+    placePlayerShips(playerBoard);
+    placeRandomShips(enemyBoard);
 
     while (true)
     {
@@ -266,14 +267,14 @@ int main_gameplay_loop()
         cout << "\n--- Enemy Board ---\n";
         printBoard(enemyDisplay, false);
 
-        playerTurn();
+        humanTurn(enemyDisplay, enemyBoard);
         if (isGameOver(enemyBoard))
         {
             cout << "\nYou win!\n";
             break;
         }
 
-        enemyTurn();
+        randomTurn(playerBoard);
         if (isGameOver(playerBoard))
         {
             cout << "\nEnemy wins.\n";
