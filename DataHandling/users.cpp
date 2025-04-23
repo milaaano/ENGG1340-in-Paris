@@ -3,6 +3,8 @@
 #include <fstream>
 #include <sstream>
 #include "constants.h"
+#include <cmath>
+#include <algorithm>
 
 bool leaderboardDirtyBit = false;
 
@@ -133,7 +135,7 @@ pair<bool, string> registerUser(Users & users, const string & username, const st
             return response;
         }
     }
-    users[username] = User(username, password, 0);
+    users[username] = User(username, password, start_rating);
     leaderboardDirtyBit = true;
     leaderboard.push_back( &(users[username]));
     clearScreen();
@@ -180,11 +182,35 @@ void printLeaderboard(Leaderboard & leaderboard) {
     }
 }
 
+double surprise_boost(double gap) {
+    return 1.0 + (gap * gap) / (D * D);
+}
+
+void updateRating(double& a, double& b, double outcome) {
+    double E_a = 1.0 / (1.0 + pow(10.0, (b - a) / D));
+
+    double gap = b - a;
+    double boost = surprise_boost(gap);
+    double d_a = C * (outcome - E_a) * boost;
+
+    if (outcome == 1) {
+        a = min({round(a + d_a), round(a * maxgain)});
+        b = max({round(b - d_a), round(b * maxlost)});
+    } else {
+        a = max({round(a + d_a), round(a * maxlost)});
+        b = min({round(b - d_a), round(b * maxgain)});
+    }
+}
+
 void clearScreen() {
     system("clear");
 }
 
 // int main() {
+//     double a = 600, b = 600;
+//     updateRating(a, b, 0);
+//     cout << a << "    " << b << endl;
+
 //     // Users users;
 //     // string username, password;
 //     // int score;
@@ -216,5 +242,4 @@ void clearScreen() {
 //     // printLeaderboard(leaderboard);
 
 //     // cout << '\n';
-
 // }

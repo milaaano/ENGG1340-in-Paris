@@ -30,7 +30,7 @@ private:
 public:
     int score;
 
-    User() : name(""), passwordHash(0), score(0) {} // default constructor
+    User() : name(""), passwordHash(0), score(start_rating) {} // default constructor
 
     // constructor with parameters: name, password (string), score
     User(string name, string password, int score) : name(name), score(score) {
@@ -88,5 +88,9 @@ void printLeaderboard(Leaderboard & leaderboard); // Prints the leader board wit
 void clearScreen(); // clean terminal. Read somewhere how to use it for Ubuntu
 
 void Encrypt(string & data, const string & key); // will not be used
+
+// ----Rating System----
+
+void updateRating(double& a, double& b, double outcome); // takes two numbers by reference, which are "user.score", and outcome = 1 if "a" won, 0 otherwise. Updates users ratings.
 
 #endif
