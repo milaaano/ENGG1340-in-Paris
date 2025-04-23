@@ -107,22 +107,20 @@ void saveUsers(const string & path, const Users & users) {
     ofstream ofs;
     ofs.open(tmp.c_str());
     if (ofs.fail()) {
-        cout << "Can't open the tmp file" << '\n';
+        cout << "Can't open the tmp file\n" << '\n';
         exit(1);
     }
 
     for (const auto & pair : users) {
         const User &u = pair.second;
         string line = u.getName() + "," + to_string(u.getPasswordHash()) + "," + to_string(u.score);
-        cout << "before:   " << line << '\n';
-        cout << "after:   " << line << '\n';
         ofs << line << '\n';
     }
     ofs.close();
 }
 
-pair<bool, string> registerUser(Users & users, const string & username, const string & password) {
-    pair<bool, string> response = {true, "Successful registration!"};
+pair<bool, string> registerUser(Users & users, const string & username, const string & password, Leaderboard & leaderboard) {
+    pair<bool, string> response = {true, "Successful registration!\n"};
     if (users.find(username) != users.end()) {
         response.first = false;
         response.second = "User " + username + " already exists!\n";
@@ -137,6 +135,8 @@ pair<bool, string> registerUser(Users & users, const string & username, const st
     }
     users[username] = User(username, password, 0);
     leaderboardDirtyBit = true;
+    leaderboard.push_back( &(users[username]));
+    clearScreen();
     return response;
 }
 
@@ -144,29 +144,77 @@ pair<bool, string> registerUser(Users & users, const string & username, const st
 pair<bool, string> loginUser(const Users & users, const string & username, const string & password, User * & logged_user) {
     auto it = users.find(username);
     if (it == users.end()) {
-        return {false, "No users with username" + username + "!"};
+        return {false, "No users with username" + username + "!\n"};
     }
     ll attempt = makePasswordHash(password);
     if (attempt != it->second.getPasswordHash()) {
-        return {false, "Wrong password!"};
+        return {false, "Wrong password!\n"};
     }
     User u = it->second;
     logged_user = &u;
-    return {true, "Successfull login!"};
+    clearScreen();
+    return {true, "Successfull login!\n"};
 }
 
-int main() {
-    // Users users;
-    // string s = "";
-    // for (int i = 0; i < 10; i++) {
-    //     s.push_back('a' + i);
-    //     User user(s, "bdiorhbghdior", i);
-    //     users[s] = user;
-    // }
-    // saveUsers("/Users/macbook/ProgrammingProjects/ENGG1340-in-Paris/Data/users.db", users);
-    // Users hello = buildUsers("/Users/macbook/ProgrammingProjects/ENGG1340-in-Paris/Data/users.db");
-    // for (const auto & el : hello) {
-    //     cout << "current user:    ";
-    //     el.second.printUser(52);
-    // }
+void buildLeaderboard(Users & users, Leaderboard & leaderboard) {
+    for (auto & pair : users) {
+        leaderboard.push_back(&(pair.second));
+    }
+    leaderboardDirtyBit = true;
 }
+
+void printLeaderboard(Leaderboard & leaderboard) {
+    if (leaderboard.empty()) {
+        cout << "No registered users!\n";
+        return;
+    }
+    if (leaderboardDirtyBit) {
+        sort(leaderboard.begin(), leaderboard.end(), [](User * a, User * b) {
+            return !(*a < *b);
+        });
+    }
+    cout << setfill('-') << setw(15) << right << "Leaderboard" << setw(4) << '\n';
+    cout <<setfill(' ');
+    for (int i = 0; i < leaderboard.size(); i++) {
+        (leaderboard[i]->printUser(i + 1));
+    }
+}
+
+void clearScreen() {
+    system("clear");
+}
+
+// int main() {
+//     // Users users;
+//     // string username, password;
+//     // int score;
+//     // Leaderboard leaderboard;
+//     // buildLeaderboard(users, leaderboard);
+//     // for (int i = 0; i < 5; i++) {
+//     //     cin >> username >> password;
+//     //     registerUser(users, username, password, leaderboard);
+//     // }
+//     // printLeaderboard(leaderboard);
+    
+//     // saveUsers("/Users/macbook/ProgrammingProjects/ENGG1340-in-Paris/Data/users.db", users);
+//     // Users hello = buildUsers("/Users/macbook/ProgrammingProjects/ENGG1340-in-Paris/Data/users.db");
+//     // for (const auto & el : hello) {
+//     //     el.second.printUser(52);
+//     // }
+
+//     // for (int i = 0; i < 3; i++) {
+//     //     cin >> username >> password;
+//     //     User * ptr = nullptr;
+//     //     pair<bool, string> res = loginUser(users, username, password, ptr);
+//     //     cout << res.second;
+//     //     if (res.first) {
+//     //         ptr->score = i + 100;
+//     //     }
+        
+//     // }
+
+//     // printLeaderboard(leaderboard);
+
+//     // cout << '\n';
+
+// }
