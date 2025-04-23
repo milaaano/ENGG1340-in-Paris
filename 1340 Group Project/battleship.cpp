@@ -199,7 +199,7 @@ bool isGameOver(int board[BOARD_SIZE][BOARD_SIZE]) {
     return true;
 }
 
-int main() {
+int gameplay() {
     srand(time(0));
     initializeBoard(playerBoard);
     initializeBoard(enemyBoard);
