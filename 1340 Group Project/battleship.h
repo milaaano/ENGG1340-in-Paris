@@ -23,7 +23,7 @@ bool isPlacementValid(int board[][10], int row, int col, int size, int dRow, int
 void placeShip(int board[][10], int row, int col, int size, int dRow, int dCol);
 // void placeEnemyShips(); // Old signature
 void placeRandomShips(int board[][10]); // New signature
-void getCoordinates(std::string input, int &row, int &col);
+void getCoordinates(string input, int &row, int &col);
 // void placePlayerShips(); // Old signature
 void placePlayerShips(int playerBoard[][10]); // New signature
 // void playerTurn(); // Old signature

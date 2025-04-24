@@ -89,6 +89,13 @@ bool login_or_signup(Users &users, User *&logged_user, Leaderboard &leaderboard,
     return false;
 }
 
+// Handles player 1 win and updates leaderboard. Takes in pointer to winner and users map.
+void handleWin(User *&winner, User *&loser, Users &users)
+{
+    cout << winner->getName() << " wins!" << endl;
+    updateRating(users[winner->getName()].score, users[loser->getName()].score, 1);
+}
+
 int main()
 {
     // ---- Login or sign up ----
@@ -103,40 +110,68 @@ int main()
 
     // User 1
     cout << "Please login or sign up for user 1" << endl;
-    User *logged_user1 = nullptr;
+    User *player1 = nullptr;
     player1_logged_in = false;
     while (!player1_logged_in)
     {
-        player1_logged_in = login_or_signup(users, logged_user1, leaderboard, current_users);
+        player1_logged_in = login_or_signup(users, player1, leaderboard, current_users);
     }
 
     // User 2
     cout << "Please login or sign up for user 2" << endl;
-    User *logged_user2 = nullptr;
+    User *player2 = nullptr;
     player2_logged_in = false;
     while (!player2_logged_in)
     {
-        player2_logged_in = login_or_signup(users, logged_user2, leaderboard, current_users);
+        player2_logged_in = login_or_signup(users, player2, leaderboard, current_users);
     }
 
-    system("clear");
+    clearScreen();
 
     // ---- Place ships ----
     // Player 1 goes first
     cout << "Player 1, please place your ships" << endl;
     int player1Board[10][10];
+    int player1Display[10][10];
     initializeBoard(player1Board);
-    printBoard(player1Board, true);
+    initializeBoard(player1Display);
+    placePlayerShips(player1Board);
 
-    system("clear");
+    clearScreen();
 
     // Player 2
     cout << "Player 2, please place your ships" << endl;
     int player2Board[10][10];
+    int player2Display[10][10];
     initializeBoard(player2Board);
-    printBoard(player2Board, true);
+    initializeBoard(player2Display);
+    placePlayerShips(player2Board);
 
-    // Play game
+    // --- Main game loop ---
+    while (true)
+    {
+        cout << "\n--- " << player1->getName() << " Turn ---\n";
+        printBoard(player1Display, false);
+        humanTurn(player1Display, player2Board);
+        if (isGameOver(player2Board))
+        {
+            handleWin(player1, player2, users);
+            break;
+        }
+        clearScreen();
+        cout << "\n--- " << player2->getName() << " Turn ---\n";
+        printBoard(player2Display, false);
+        humanTurn(player2Display, player1Board);
+        if (isGameOver(player1Board))
+        {
+            handleWin(player2, player1, users);
+            break;
+        }
+        clearScreen();
+    }
+
+    saveUsers("../Data/users.db", users);
+
     // Update leaderboard
     return 0;
 }
