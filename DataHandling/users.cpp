@@ -206,40 +206,40 @@ void clearScreen() {
     system("clear");
 }
 
-int main() {
-    int a = 600, b = 600;
-    updateRating(a, b, 0);
-    cout << a << "    " << b << endl;
+// int main() {
+//     int a = 600, b = 600;
+//     updateRating(a, b, 0);
+//     cout << a << "    " << b << endl;
 
-    // Users users;
-    // string username, password;
-    // int score;
-    // Leaderboard leaderboard;
-    // buildLeaderboard(users, leaderboard);
-    // for (int i = 0; i < 5; i++) {
-    //     cin >> username >> password;
-    //     registerUser(users, username, password, leaderboard);
-    // }
-    // printLeaderboard(leaderboard);
+//     // Users users;
+//     // string username, password;
+//     // int score;
+//     // Leaderboard leaderboard;
+//     // buildLeaderboard(users, leaderboard);
+//     // for (int i = 0; i < 5; i++) {
+//     //     cin >> username >> password;
+//     //     registerUser(users, username, password, leaderboard);
+//     // }
+//     // printLeaderboard(leaderboard);
     
-    // saveUsers("/Users/macbook/ProgrammingProjects/ENGG1340-in-Paris/Data/users.db", users);
-    // Users hello = buildUsers("/Users/macbook/ProgrammingProjects/ENGG1340-in-Paris/Data/users.db");
-    // for (const auto & el : hello) {
-    //     el.second.printUser(52);
-    // }
+//     // saveUsers("/Users/macbook/ProgrammingProjects/ENGG1340-in-Paris/Data/users.db", users);
+//     // Users hello = buildUsers("/Users/macbook/ProgrammingProjects/ENGG1340-in-Paris/Data/users.db");
+//     // for (const auto & el : hello) {
+//     //     el.second.printUser(52);
+//     // }
 
-    // for (int i = 0; i < 3; i++) {
-    //     cin >> username >> password;
-    //     User * ptr = nullptr;
-    //     pair<bool, string> res = loginUser(users, username, password, ptr);
-    //     cout << res.second;
-    //     if (res.first) {
-    //         ptr->score = i + 100;
-    //     }
+//     // for (int i = 0; i < 3; i++) {
+//     //     cin >> username >> password;
+//     //     User * ptr = nullptr;
+//     //     pair<bool, string> res = loginUser(users, username, password, ptr);
+//     //     cout << res.second;
+//     //     if (res.first) {
+//     //         ptr->score = i + 100;
+//     //     }
         
-    // }
+//     // }
 
-    // printLeaderboard(leaderboard);
+//     // printLeaderboard(leaderboard);
 
-    // cout << '\n';
-}
+//     // cout << '\n';
+// }
