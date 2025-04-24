@@ -91,6 +91,6 @@ void Encrypt(string & data, const string & key); // will not be used
 
 // ----Rating System----
 
-void updateRating(double& a, double& b, double outcome); // takes two numbers by reference, which are "user.score", and outcome = 1 if "a" won, 0 otherwise. Updates users ratings.
+void updateRating(int & a, int & b, int outcome); // takes two numbers by reference, which are "user.score", and outcome = 1 if "a" won, 0 otherwise. Updates users ratings.
 
 #endif
