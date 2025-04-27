@@ -2,7 +2,7 @@
 #define BATTLESHIP_H
 
 #include <string>
-
+using namespace std;
 // Constants
 extern const int BOARD_SIZE;
 extern const int EMPTY;
@@ -33,3 +33,9 @@ void randomTurn(int targetBoard[][10]); // New signature
 bool isGameOver(int board[][10]);
 
 #endif
+
+/*
+C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/14.2.0/../../../../x86_64-w64-mingw32/bin/ld.exe: C:/msys64/ucrt64/bin/../lib/gcc/x86_64-w64-mingw32/14.2.0/../../../../lib/libmingw32.a(lib64_libmingw32_a-crtexewin.o): in function `main':
+C:/M/B/src/mingw-w64/mingw-w64-crt/crt/crtexewin.c:67:(.text.startup+0xc5): undefined reference to `WinMain'
+collect2.exe: error: ld returned 1 exit status
+*/
