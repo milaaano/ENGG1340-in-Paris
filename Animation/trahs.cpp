@@ -5,9 +5,6 @@
 #include <chrono>
 #include <unistd.h>
 #include <thread>
-#include "C:\Users\ilyas\CLionProjects\ENGG1340-in-Paris\DataHandling\users.cpp"
-#include "C:\Users\ilyas\CLionProjects\ENGG1340-in-Paris\DataHandling\users.h"
-#include "C:\Users\ilyas\CLionProjects\ENGG1340-in-Paris\DataHandling\constants.h"
 #include <cstdlib>    // for system()
 
 using namespace std;
@@ -145,10 +142,6 @@ void printMenu(int choice){
 
 int main() {
      configure_terminal();
-     string db_path = "Data/users.db";
-     Users users = buildUsers(db_path);
-	Leaderboard leaderboard;
-	buildLeaderboard(users, leaderboard);
     int choice = 0;
     bool running = true;
     while (running){
@@ -176,7 +169,6 @@ int main() {
               }
               case 1: { // Scoreboard
                 CLEAR_SCREEN();
-                printLeaderboard(leaderboard);
                 cin.ignore();
                 break;
               }

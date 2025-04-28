@@ -45,8 +45,7 @@ public:
             render();
             auto end = chrono::high_resolution_clock::now();
             auto elapsed   = end - start;
-            auto delay = frameDuration
-                       - chrono::duration_cast<chrono::milliseconds>(elapsed);
+            auto delay = frameDuration - chrono::duration_cast<chrono::milliseconds>(elapsed);
             if (delay.count() > 0)
                 this_thread::sleep_for(delay);
             ++frameCount;
@@ -118,14 +117,6 @@ protected:
 
 }
 
-/* void printHeader(){
-cout<< CYAN;
-cout<<"████   ███  █████ █████ █     █████  ███  █   █  ███  ████\n";
-cout<<"█   █ █   █   █     █   █     █     █     █   █   █   █   █\n";
-cout<<"████  █████   █     █   █     ████   ███  █████   █   ████\n" ;
-cout<<"█   █ █   █   █     █   █     █         █ █   █   █   █\n"   ;
-cout<<"████  █   █   █     █   █████ █████  ███  █   █  ███  █\n" ;
-}*/
 void printMenu(int choice){
     static const char* opts[] = {
         "Play",
