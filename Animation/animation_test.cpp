@@ -1,11 +1,15 @@
 // battleships_frontpage_smooth_noecho.cpp
 #include <iostream>
 #include <vector>
-#include <algorithm>
-#include <chrono>
+// #include <algorithm>
+// #include <chrono>
 #include <unistd.h>
-#include <thread>
+// #include <thread>
+#include "main_menu.h"
 #include <cstdlib>    // for system()
+// #include "../Multiplayer/multiplayer.h"
+// #include "../DataHandling/users.h"
+// #include "../1340 Group Project/battleship.h"
 
 using namespace std;
 
@@ -31,10 +35,10 @@ void reset_terminal(){
     cout << "\033[?25h" << RESET;
     cout.flush();
     // restore default terminal behaviour
-    system("stty sane");
 }
 
 // --- Animation base (C++11) ---
+/*
 class Animation {
 public:
     void run() {
@@ -61,9 +65,12 @@ protected:
         CLEAR_SCREEN();
     }
 };
+*/
 
-// --- Flashing‐ship animation for Battleships ---
-static const int BOARD_SIZE = 10;
+
+// Flashing animation build
+
+/* static const int BOARD_SIZE = 10;
 static const int EMPTY = 0, SHIP = 1, HIT = 2, MISS = 3;
 
 class FlashingShipAnimation : public Animation {
@@ -101,6 +108,8 @@ protected:
         }
     }
 };
+*/
+
 
 // --- Front‐page drawing ---
  void printHeader() {
@@ -117,8 +126,8 @@ protected:
 
 }
 
-void printMenu(int choice){
-    static const char* opts[] = {
+void printMenu(){
+    /* static const char* opts[] = {
         "Play",
         "Scoreboard",
         "Difficulty",
@@ -128,55 +137,80 @@ void printMenu(int choice){
         if (i == choice) cout << YELLOW << "> ";
         else             cout << "  ";
         cout << (i+1) << ". " << opts[i] << RESET << "\n";
-    }
+    } */
+    cout << "1. Play" << endl;
+    cout << "2. Scoreboard" << endl;
+    cout << "3. Difficulty" << endl;
+    cout << "4. Exit" << endl;
 }
 
 int main() {
-     configure_terminal();
-    int choice = 0;
+    /*
+     string path = "../Data/users.db";
+     Users users;
+     Leaderboard leaderboard;
+     buildUsers(path);
+     buildLeaderboard(users, leaderboard);
+*/
+
+
+    int choice;
     bool running = true;
+    configure_terminal();
+
     while (running){
-        CLEAR_SCREEN();
+        Console::clear();
         printHeader();
-        printMenu(choice);
-        cout.flush();
-
+        printMenu();
         // immediate keypress read
-        char c;
-		read(STDIN_FILENO, &c, 1);
+        // int input;
+        // int result;
+        read(STDIN_FILENO, &choice, 1);
+        /* switch (input) {
+                    case 'w':
+                        if (choice > 1) {
+                            choice--;
+                        }
+                        break;
+                    case 's':
+                        if (choice < 5) {
+                            choice++;
+                        }
+                        break;
+                    case '\n': // Enter key */
+        switch (choice) {
+            case 1:
+                Console::clear();
+                cout << "=== Play button was run ==="
+                << endl
+                << "Press any key to return..." << endl;
+                cin.ignore();
+                case 2:
+                // Scoreboard
+                Console::clear(); // main_multiplayer(users, leaderboard);
+                cout << "=== Scoreboard button was run ==="
+                << endl
+                << "Press any key to return..." << endl;
+                cin.ignore();
+                break;
 
-        if      (c == 'w' && choice > 0)    --choice;
-        else if (c == 's' && choice < 3)    ++choice;
-        else if (c == '\n' || c == '\r') {
-            switch (choice) {
-              case 0: {  // Play
-                static int board[BOARD_SIZE][BOARD_SIZE] = {{EMPTY}};
-                board[4][4] = HIT;               // one hit
-                vector<pair<int,int>> ship{{4,4}};
-                FlashingShipAnimation anim(board, ship);
-                anim.run();
-				cin.ignore();
-                break;
-              }
-              case 1: { // Scoreboard
-                CLEAR_SCREEN();
+                case 3:
+                Console::clear();
+                cout << "=== Scoreboard button was run ==="
+                << endl << "Press any key to return..." << endl;
                 cin.ignore();
                 break;
-              }
-              case 2: { // Difficulty
-                CLEAR_SCREEN();
-                cout << "=== Difficulty ===\n1. Easy\n2. Normal\n3. Hard\n"
-                        "Press any key to return...";
-                cin.ignore();
-                break;
-              }
-              case 3:
+
+                case 4:
+                // Exit the menu
+                Console::clear();
+                std::cout << "Exiting the menu." << std::endl;
                 running = false;
                 break;
-            }
         }
-    }
+        break;
 
+    }
     reset_terminal();
     return 0;
 }
