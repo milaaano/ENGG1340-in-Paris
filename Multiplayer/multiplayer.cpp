@@ -1,15 +1,8 @@
-// Include local files
-#include "../DataHandling/users.h"
-#include "../1340 Group Project/battleship.h"
 
-// Include standard libraries
-#include <iostream>
-#include <utility>
-#include <cstdlib>
+#include "multiplayer.h"
 
 // g++ -std=c++11 -pedantic-errors Multiplayer/multiplayer.cpp DataHandling/users.cpp "1340 Group Project/battleship.cpp" -o Multiplayer/multiplayer && Multiplayer/multiplayer
 // g++ -std=c++11 -pedantic-errors multiplayer.cpp ../DataHandling/users.cpp "../1340 Group Project/battleship.cpp" -o multiplayer && ./multiplayer
-using namespace std;
 
 // Prompts the user to login or sign up
 bool login_or_signup(Users &users, User *&logged_user, Leaderboard &leaderboard, string current_users[2][2])
@@ -96,13 +89,12 @@ void handleWin(User *&winner, User *&loser, Users &users)
     updateRating(users[winner->getName()].score, users[loser->getName()].score, 1);
 }
 
-int main()
+int main_multiplayer(Users &users, Leaderboard &leaderboard)
 {
     // ---- Login or sign up ----
     cout << "Welcome to Battleship Multiplayer!" << endl;
+    string path = "../Data/users.db";
 
-    Users users = buildUsers("../Data/users.db");
-    Leaderboard leaderboard;
     buildLeaderboard(users, leaderboard);
     string current_users[2][2] = {{"", ""}, {"", ""}}; // [0][0] is player 1 username, [0][1] is player 1 password, [1][0] is player 2 username, [1][1] is player 2 password
     bool player1_logged_in = false;
@@ -170,7 +162,7 @@ int main()
         clearScreen();
     }
 
-    saveUsers("../Data/users.db", users);
+    saveUsers(path, users);
 
     // Update leaderboard
     return 0;
