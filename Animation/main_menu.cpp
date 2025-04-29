@@ -1,6 +1,9 @@
 // battleships_frontpage_smooth_noecho.cpp
 #include <iostream>
 #include "main_menu.h"
+
+#include "../DataHandling/users.h"
+#include "../Multiplayer/multiplayer.h"
 using namespace std;
 
 // ANSI color codes
@@ -19,6 +22,12 @@ void printHeader() {
 }
 
 int main() {
+    string path = "../Data/users.db";
+    Users users;
+    Leaderboard leaderboard;
+    buildUsers(path);
+    buildLeaderboard(users, leaderboard);
+    int multiplayer_status;
     bool running = true;
     string line;
     while (running) {
@@ -40,7 +49,7 @@ int main() {
 
           case '2':
             Console::clear();
-            printScoreboard();
+            printLeaderboard(leaderboard);
             getline(cin, line);
             break;
 
@@ -52,10 +61,18 @@ int main() {
 
           case '4':
             Console::clear();
+            multiplayer_status = main_multiplayer(users, leaderboard);
+            if (multiplayer_status == 1) {
+              cout << "Error occured during multiplayer!\n";
+              exit(1);
+            }
+            break;
+
+          case '5':
+            Console::clear();
             cout << "Thank you for playing!"<<endl;
             running = false;
             break;
-
           default:
             // invalid: just redraw
             break;
