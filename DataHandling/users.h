@@ -73,7 +73,9 @@ void saveUsers(const string & path, const Users & users); // saves changes from 
 
 // ----Login/registration----
 
-pair<bool, string> registerUser(Users & users, const string & username, const string & password, Leaderboard & leaderboard); // Registers users. Password is in form of string. Returns pair of bool (result of the registration) and message (representing error or  successful registration)
+pair<bool, string> registerUser(Users & users, const string & username, const string & password, Leaderboard & leaderboard, User * & logged_user); // Registers users. Password is in form of string. Returns pair of bool (result of the registration) and message (representing error or  successful registration)
+
+pair<bool, string> registerUser(Users & users, const string & username, const string & password, Leaderboard & leaderboard); // overloaded function for separate registration from main_menu
 
 pair<bool, string> loginUser(const Users & users, const string & username, const string & password, User * & logged_user); // Logs users in. Return value is the same as above. User * & logged_user - pointer to the logged user in the Users map, needed to change user's rating after the game. One should create a pointer (not dynamic) and pass it as the argument.
 

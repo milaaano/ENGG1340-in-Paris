@@ -71,6 +71,7 @@ void Encrypt(string &data, const string &key)
 Users buildUsers(const string &path)
 {
     ifstream ifs;
+    cout << path << '\n';
     ifs.open(path.c_str());
     if (ifs.fail()) {
         cout << "Error in file opening\n";
@@ -142,6 +143,27 @@ pair<bool, string> registerUser(Users & users, const string & username, const st
     return response;
 }
 
+pair<bool, string> registerUser(Users & users, const string & username, const string & password, Leaderboard & leaderboard, User * & logged_user) {
+    pair<bool, string> response = {true, "Successful registration!\n"};
+    if (users.find(username) != users.end()) {
+        response.first = false;
+        response.second = "User " + username + " already exists!\n";
+        return response;
+    }
+    for (int i = 0; i < username.length(); i++) {
+        if (username[i] > 127 || username[i] < 1) {
+            response.first = false;
+            response.second = "Invalid password!\n";
+            return response;
+        }
+    }
+    users[username] = User(username, password, start_rating);
+    logged_user = &users[username];
+    leaderboardDirtyBit = true;
+    leaderboard.push_back( &(users[username]));
+    clearScreen();
+    return response;
+}
 
 pair<bool, string> loginUser(const Users & users, const string & username, const string & password, User * & logged_user) {
     auto it = users.find(username);
@@ -201,6 +223,8 @@ void updateRating(int & a, int & b, int outcome) {
         b = min({round(b - d_a), round(b * maxgain)});
     }
 }
+
+
 
 void clearScreen() {
     system("clear");

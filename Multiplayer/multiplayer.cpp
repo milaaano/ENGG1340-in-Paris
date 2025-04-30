@@ -69,7 +69,7 @@ bool login_or_signup(Users &users, User *&logged_user, Leaderboard &leaderboard,
         cin >> username;
         cout << "Enter password: ";
         cin >> password;
-        if (get<0>(registerUser(users, username, password, leaderboard)))
+        if (get<0>(registerUser(users, username, password, leaderboard, logged_user)))
         {
             cout << "User created successfully" << endl;
             return true;
