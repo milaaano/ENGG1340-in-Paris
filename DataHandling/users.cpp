@@ -71,7 +71,6 @@ void Encrypt(string &data, const string &key)
 Users buildUsers(const string &path)
 {
     ifstream ifs;
-    cout << path << '\n';
     ifs.open(path.c_str());
     if (ifs.fail()) {
         cout << "Error in file opening\n";
