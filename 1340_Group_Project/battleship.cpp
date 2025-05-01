@@ -23,10 +23,10 @@ struct AttackRecord {
 static vector<AttackRecord> enemyAttacks;
 
 const int BOARD_SIZE = 10;
-const int EMPTY      = 0;
-const int SHIP       = 1;
-const int HIT        = 2;
-const int MISS       = 3;
+const int EMPTY = 0;
+const int SHIP = 1;
+const int HIT = 2;
+const int MISS = 3;
 
 const int NUM_SHIPS  = 5;
 const int SHIP_SIZES[NUM_SHIPS] = {5, 4, 3, 3, 2};
