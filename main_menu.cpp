@@ -4,6 +4,7 @@
 
 #include "DataHandling/users.h"
 #include "Multiplayer/multiplayer.h"
+#include "1340_Group_Project/battleship.h"
 using namespace std;
 
 // ANSI color codes
@@ -84,15 +85,24 @@ int main() {
             switch (difficulty_choice) {
               case '1':
                 // Easy mode
-                break;  
+                  Console::clear();
+                  return main_gameplay_loop();
+                  break;  
               case '2':
                 // Normal mode
+                Console::clear();
+                return main_gameplay_loop();
                 break;
               case '3':
                 // Medium mode
+                Console::clear();
+                return main_gameplay_loop();
                 break;
               case '4':
                 // Hard mode
+                Console::clear();
+                return main_gameplay_loop();
+                break;
               default:
                 // Invaid choice
                 break;
