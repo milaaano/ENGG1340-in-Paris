@@ -12,6 +12,9 @@ extern const int MISS;
 extern const int NUM_SHIPS;
 extern const int SHIP_SIZES[];
 
+extern char difficulty_choice;  
+int  main_gameplay_loop(); 
+
 // extern int playerBoard[][10]; // Remove global
 // extern int enemyBoard[][10]; // Remove global
 // extern int enemyDisplay[][10]; // Remove global
