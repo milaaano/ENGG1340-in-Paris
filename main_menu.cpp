@@ -68,7 +68,7 @@ int main() {
 
         char choice = line[0];
         string valid_mode_choice = "1234";
-        extern char difficulty_choice;
+        char difficulty_choice;
         switch (choice) {
           case '1': 
             // Chose difficulty
@@ -86,13 +86,13 @@ int main() {
                 // Easy mode
                 break;  
               case '2':
-                // Medium mode
+                // Normal mode
                 break;
               case '3':
-                // Hard mode
+                // Medium mode
                 break;
               case '4':
-                continue;
+                // Hard mode
               default:
                 // Invaid choice
                 break;
