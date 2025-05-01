@@ -13,7 +13,6 @@ extern const int NUM_SHIPS;
 extern const int SHIP_SIZES[];
 
 extern char difficulty_choice;  
-int  main_gameplay_loop(); 
 
 // extern int playerBoard[][10]; // Remove global
 // extern int enemyBoard[][10]; // Remove global
@@ -32,8 +31,9 @@ void placePlayerShips(int playerBoard[][10]); // New signature
 // void playerTurn(); // Old signature
 void humanTurn(int displayBoard[][10], int targetBoard[][10]); // New signature
 // void enemyTurn(); // Old signature
-void randomTurn(int targetBoard[][10]); // New signature
+void enemyTurn(int targetBoard[][10]); // New signature
 bool isGameOver(int board[][10]);
+int  main_gameplay_loop(); 
 
 #endif
 
