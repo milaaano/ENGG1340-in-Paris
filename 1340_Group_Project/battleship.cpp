@@ -31,6 +31,38 @@ const int MISS = 3;
 const int NUM_SHIPS  = 5;
 const int SHIP_SIZES[NUM_SHIPS] = {5, 4, 3, 3, 2};
 
+// YERAYERA
+
+int playerBoard[BOARD_SIZE][BOARD_SIZE];
+
+
+int enemyBoard[BOARD_SIZE][BOARD_SIZE];
+int enemyDisplay[BOARD_SIZE][BOARD_SIZE];
+
+//Probability boards for all the enemy ships
+int enemyProbabilityBoard_5[BOARD_SIZE][BOARD_SIZE];
+int enemyProbabilityBoard_4[BOARD_SIZE][BOARD_SIZE];
+int enemyProbabilityBoard_3[BOARD_SIZE][BOARD_SIZE];
+int enemyProbabilityBoard_2[BOARD_SIZE][BOARD_SIZE];
+
+//the coordinates with maximum probability
+int probable_x = -1;
+int probable_y = -1;
+
+//The map of all "alive" ships on the field of the user
+int alive_ships[]={5, 4, 3, 3, 2};
+
+//The map of all succesful strikes on the field of the computer
+int enemyStrikeBoard[BOARD_SIZE][BOARD_SIZE];
+
+//to understand that the algorith is hitting the ship
+bool in_the_process=false;
+int fired_x=-1;
+int fired_y=-1;
+int direction=0;
+int end_of_a_ship=0;
+int SHIP_SIZE_Memory=0;
+
 extern char difficulty_choice;
 
 void clearScreen() {
@@ -289,6 +321,688 @@ bool humanTurn(
     }
 }
 
+//Yera Start
+void initializeProbabilityBoard(int board[BOARD_SIZE][BOARD_SIZE], int probability_board[BOARD_SIZE][BOARD_SIZE], int SHIP_SIZE) {
+    //Initialize and annul board proability board
+    initializeBoard(probability_board);
+
+    // firstly for the horizonal placement
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            if (board[i][j] == EMPTY && j+SHIP_SIZE<BOARD_SIZE){
+                bool success=true;
+                int j_initial=j;
+
+                //duplicates for the variables to intializa the probability board
+                int j_1=j;
+                int j_2=j;
+                while (j_1<j_initial+SHIP_SIZE){
+                    //cout<<"board[i][j_1] = "<<board[i][j_1];
+                    for (int dr = -1; dr <= 1; dr++) {
+                        for (int dc = -1; dc <= 1; dc++) {
+                            int nr = i + dr;
+                            int nc = j_1 + dc;
+                            if (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE && board[nr][nc] == SHIP) {
+                                success=false;
+                            }
+                        }
+                    }
+                    j_1++;
+                }
+                if (success){
+                    while (j_2<j_initial+SHIP_SIZE){
+                        probability_board[i][j_2]++;
+                        j_2++;
+                    }
+                    j_2=j;
+                }
+                
+            
+            }
+        }
+    }
+
+// firstly for the certical placement
+for (int j = 0; j < BOARD_SIZE; j++) {
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        if (board[i][j] == EMPTY && i+SHIP_SIZE<BOARD_SIZE){
+            bool success=true;
+            int i_initial=i;
+
+            //duplicates for the variables to intializa the probability board
+            int i_1=i;
+            int i_2=i;
+            while (i_1<i_initial+SHIP_SIZE){
+                //cout<<"board[i][j_1] = "<<board[i][j_1];
+                for (int dr = -1; dr <= 1; dr++) {
+                    for (int dc = -1; dc <= 1; dc++) {
+                        int nr = i_1 + dr;
+                        int nc = j + dc;
+                        if (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE && board[nr][nc] == SHIP) {
+                            success=false;
+                        }
+                    }
+                }
+                i_1++;
+            }
+            if (success){
+                while (i_2<i_initial+SHIP_SIZE){
+                    probability_board[i_2][j]++;
+                    i_2++;
+                }
+            }
+            i_2=i;
+        }
+    }
+
+}
+for (int i=0; i<BOARD_SIZE;i++){
+    for (int j=0; j<BOARD_SIZE; j++){
+        if (board[i][j]==HIT) {
+            probability_board[i][j]=0;
+        }
+    }
+}
+}
+
+
+//for finding the coordinate with teh maximum probability
+void probable_position(int board[BOARD_SIZE][BOARD_SIZE], int & probable_x, int & probable_y){
+    int max=0;
+    for (int i=0; i<BOARD_SIZE; i++){
+        for (int j=0; j<BOARD_SIZE; j++){
+            if (board[i][j]>max){
+                max=board[i][j];
+                probable_x=i;
+                probable_y=j;
+                //cout<<"x="<<i<<endl;
+                //cout<<"y="<<j<<endl;
+            }
+        }
+    }
+}
+
+// to just shoot sequentually and remember where the shots were fired
+void enemyTurn_HalfPro(int playerBoard[BOARD_SIZE][BOARD_SIZE]) { 
+    int row, col;   
+    bool fired = false;
+    while (!fired) {
+        if (!in_the_process) {
+            row = rand() % BOARD_SIZE;
+            col = rand() % BOARD_SIZE;
+            if (playerBoard[row][col] == EMPTY || playerBoard[row][col] == SHIP) {
+                if (playerBoard[row][col] == SHIP) {
+                    cout << "Enemy hit your ship at " << char('A' + col) << row + 1 << "!\n";
+                    playerBoard[row][col] = HIT;
+                    enemyStrikeBoard[row][col] = SHIP;
+                    in_the_process = true;
+                    SHIP_SIZE_Memory++;
+                    fired_x = row;
+                    fired_y=col;
+                    //fired = true; // Set fired to true to exit the loop
+                } else {
+                    cout << "Enemy missed at " << char('A' + col) << row + 1 << ".\n";
+                    playerBoard[row][col] = MISS;
+                    enemyStrikeBoard[row][col] = HIT;
+                    fired = true; // Exit the loop after a miss
+                }
+            }
+        } 
+        else {
+            int direction_i;
+            if (direction==0){
+                direction_i=fired_x+1;
+                if (direction_i>BOARD_SIZE){
+                    end_of_a_ship++;
+                    direction++;
+                }
+                else{
+                    if (playerBoard[direction_i][fired_y] == SHIP) {
+                        fired_x=direction_i;
+                        playerBoard[fired_x][fired_y] = HIT;
+                        enemyStrikeBoard[fired_x][fired_y] = SHIP;
+                        SHIP_SIZE_Memory++;
+                        cout << "Enemy hit your ship at " << char('A' + fired_y) << fired_x + 1 << "!\n";
+                    }
+                    else{
+                        cout << "Enemy missed at " << char('A' + fired_y) << direction_i + 1 << ".\n";
+                        playerBoard[direction_i][fired_y] = MISS;
+                        enemyStrikeBoard[direction_i][fired_y] = HIT;
+                        end_of_a_ship++;
+                        fired_x=row;
+                        direction++;
+                        fired = true;
+                    }
+                }
+                if(end_of_a_ship==2 && SHIP_SIZE_Memory>1){
+                    for (int i=0; i<5; i++){
+                        if (alive_ships[i]==SHIP_SIZE_Memory){
+                            alive_ships[i]=0;
+                            SHIP_SIZE_Memory=0;
+                            direction=0;
+                            end_of_a_ship=0;
+                            in_the_process=false;
+                        }
+                    }
+                }
+                else if(end_of_a_ship==2 && SHIP_SIZE_Memory==1){
+                    end_of_a_ship=0;
+                }
+            }
+            else if (direction==1){
+                direction_i=fired_x-1;
+                if (direction_i<0){
+                    end_of_a_ship++;
+                    direction++;
+                }
+                else{
+                    if (playerBoard[direction_i][fired_y] == SHIP) {
+                        fired_x=direction_i;
+                        playerBoard[fired_x][fired_y] = HIT;
+                        enemyStrikeBoard[fired_x][fired_y] = SHIP;
+                        SHIP_SIZE_Memory++;
+                        cout << "Enemy hit your ship at " << char('A' + fired_y) << fired_x + 1 << "!\n";
+                    }
+                    else{
+                        cout << "Enemy missed at " << char('A' + fired_y) << direction_i + 1 << ".\n";
+                        playerBoard[direction_i][fired_y] = MISS;
+                        enemyStrikeBoard[direction_i][fired_y] = HIT;
+                        end_of_a_ship++;
+                        fired_x=row;
+                        direction++;
+                        fired=true;
+                    }
+                }
+                if(end_of_a_ship==2 && SHIP_SIZE_Memory>1){
+                    //cout<<"SHIP SIZE_Memory ="<<SHIP_SIZE_Memory<<endl;
+                    for (int i=0; i<5; i++){
+                        if (alive_ships[i]==SHIP_SIZE_Memory){
+                            alive_ships[i]=0;
+                            SHIP_SIZE_Memory=0;
+                            direction=0;
+                            end_of_a_ship=0;
+                            in_the_process=false;
+                        }
+                    }
+                }
+                else if(end_of_a_ship==2 && SHIP_SIZE_Memory==1){
+                    end_of_a_ship=0;
+                }
+            }
+            else if (direction==2){
+                direction_i=fired_y+1;
+                if (direction_i>BOARD_SIZE){
+                    end_of_a_ship++;
+                    direction++;
+                }
+                else{
+                    if (playerBoard[fired_x][direction_i] == SHIP) {
+                        fired_y=direction_i;
+                        playerBoard[fired_x][fired_y] = HIT;
+                        enemyStrikeBoard[fired_x][fired_y] = SHIP;
+                        SHIP_SIZE_Memory++;
+                        cout << "Enemy hit your ship at " << char('A' + fired_y) << fired_x + 1 << "!\n";
+                    }
+                    else{
+                        cout << "Enemy missed at " << char('A' + direction_i) << fired_x + 1 << ".\n";
+                        playerBoard[fired_x][direction_i] = MISS;
+                        enemyStrikeBoard[fired_x][direction_i] = HIT;
+                        end_of_a_ship++;
+                        //cout<<"probable_y = "<<probable_y<<endl;
+                        fired_y=col;
+                        direction++;
+                        fired=true;
+                    }
+                }
+                if(end_of_a_ship==2 && SHIP_SIZE_Memory>1){
+                    //cout<<"SHIP SIZE_Memory ="<<SHIP_SIZE_Memory<<endl;
+                    for (int i=0; i<5; i++){
+                        if (alive_ships[i]==SHIP_SIZE_Memory){
+                            in_the_process=false;
+                            alive_ships[i]=0;
+                            SHIP_SIZE_Memory=0;
+                            direction=0;
+                            end_of_a_ship=0;
+                        }
+                    }
+                }
+                else if(end_of_a_ship==2 && SHIP_SIZE_Memory==1){
+                    end_of_a_ship=0;
+                }
+            }
+            else if (direction==3){
+                direction_i=fired_y-1;
+                if (direction_i<0){
+                    end_of_a_ship++;
+                }
+                else{
+                    if (playerBoard[fired_x][direction_i] == SHIP ) {
+                        fired_y=direction_i;
+                        playerBoard[fired_x][fired_y] = HIT;
+                        enemyStrikeBoard[fired_x][fired_y] = SHIP;
+                        SHIP_SIZE_Memory++;
+                        cout << "Enemy hit your ship at " << char('A' + fired_y) << fired_x + 1 << "!\n";
+                    }
+                    else{
+                        cout << "Enemy missed at " << char('A' + direction_i) << fired_x + 1 << ".\n";
+                        playerBoard[fired_x][direction_i] = MISS;
+                        enemyStrikeBoard[fired_x][direction_i] = HIT;
+                        end_of_a_ship++;
+                        fired_y=col;
+                        direction++;
+                        fired=true;
+                    }
+                }
+                if(end_of_a_ship==2 && SHIP_SIZE_Memory>1){
+                    // ="<<SHIP_SIZE_Memory<<endl;
+                    for (int i=0; i<5; i++){
+                        if (alive_ships[i]==SHIP_SIZE_Memory){
+                            in_the_process=false;
+                            alive_ships[i]=0;
+                            SHIP_SIZE_Memory=0;
+                            direction=0;
+                            end_of_a_ship=0;
+                        }
+                    }
+                }
+                else if(end_of_a_ship==2 && SHIP_SIZE_Memory==1){
+                    end_of_a_ship=0;
+                }
+            }
+        }
+    }
+}
+
+// to just shoot sequentually and remember where the shots were fired
+void enemySequence_Logic(int playerBoard[BOARD_SIZE][BOARD_SIZE]){
+    bool fired=false;
+        while (!fired) {
+            int direction_i;
+            if (direction==0){
+                direction_i=fired_x+1;
+                if (direction_i>BOARD_SIZE){
+                    end_of_a_ship++;
+                    direction++;
+                }
+                else{
+                    if (playerBoard[direction_i][fired_y] == SHIP) {
+                        fired_x=direction_i;
+                        playerBoard[fired_x][fired_y] = HIT;
+                        enemyStrikeBoard[fired_x][fired_y] = SHIP;
+                        SHIP_SIZE_Memory++;
+                        cout << "Enemy hit your ship at " << char('A' + fired_y) << fired_x + 1 << "!\n";
+                    }
+                    else{
+                        cout << "Enemy missed at " << char('A' + fired_y) << direction_i + 1 << ".\n";
+                        playerBoard[direction_i][fired_y] = MISS;
+                        enemyStrikeBoard[direction_i][fired_y] = HIT;
+                        end_of_a_ship++;
+                        fired_x=probable_x;
+                        direction++;
+                        fired = true;
+                    }
+                }
+                if(end_of_a_ship==2 && SHIP_SIZE_Memory>1){
+                    for (int i=0; i<5; i++){
+                        if (alive_ships[i]==SHIP_SIZE_Memory){
+                            alive_ships[i]=0;
+                            SHIP_SIZE_Memory=0;
+                            direction=0;
+                            end_of_a_ship=0;
+                            in_the_process=false;
+                        }
+                    }
+                }
+                else if(end_of_a_ship==2 && SHIP_SIZE_Memory==1){
+                    end_of_a_ship=0;
+                }
+            }
+            else if (direction==1){
+                direction_i=fired_x-1;
+                if (direction_i<0){
+                    end_of_a_ship++;
+                    direction++;
+                }
+                else{
+                    if (playerBoard[direction_i][fired_y] == SHIP) {
+                        fired_x=direction_i;
+                        playerBoard[fired_x][fired_y] = HIT;
+                        enemyStrikeBoard[fired_x][fired_y] = SHIP;
+                        SHIP_SIZE_Memory++;
+                        cout << "Enemy hit your ship at " << char('A' + fired_y) << fired_x + 1 << "!\n";
+                    }
+                    else{
+                        cout << "Enemy missed at " << char('A' + fired_y) << direction_i + 1 << ".\n";
+                        playerBoard[direction_i][fired_y] = MISS;
+                        enemyStrikeBoard[direction_i][fired_y] = HIT;
+                        end_of_a_ship++;
+                        fired_x=probable_x;
+                        direction++;
+                        fired=true;
+                    }
+                }
+                if(end_of_a_ship==2 && SHIP_SIZE_Memory>1){
+                    //cout<<"SHIP SIZE_Memory ="<<SHIP_SIZE_Memory<<endl;
+                    for (int i=0; i<5; i++){
+                        if (alive_ships[i]==SHIP_SIZE_Memory){
+                            alive_ships[i]=0;
+                            SHIP_SIZE_Memory=0;
+                            direction=0;
+                            end_of_a_ship=0;
+                            in_the_process=false;
+                        }
+                    }
+                }
+                else if(end_of_a_ship==2 && SHIP_SIZE_Memory==1){
+                    end_of_a_ship=0;
+                }
+            }
+            else if (direction==2){
+                direction_i=fired_y+1;
+                if (direction_i>BOARD_SIZE){
+                    end_of_a_ship++;
+                    direction++;
+                }
+                else{
+                    if (playerBoard[fired_x][direction_i] == SHIP) {
+                        fired_y=direction_i;
+                        playerBoard[fired_x][fired_y] = HIT;
+                        enemyStrikeBoard[fired_x][fired_y] = SHIP;
+                        SHIP_SIZE_Memory++;
+                        cout << "Enemy hit your ship at " << char('A' + fired_y) << fired_x + 1 << "!\n";
+                    }
+                    else{
+                        cout << "Enemy missed at " << char('A' + direction_i) << fired_x + 1 << ".\n";
+                        playerBoard[fired_x][direction_i] = MISS;
+                        enemyStrikeBoard[fired_x][direction_i] = HIT;
+                        end_of_a_ship++;
+                        //cout<<"probable_y = "<<probable_y<<endl;
+                        fired_y=probable_y;
+                        direction++;
+                        fired=true;
+                    }
+                }
+                if(end_of_a_ship==2 && SHIP_SIZE_Memory>1){
+                    //cout<<"SHIP SIZE_Memory ="<<SHIP_SIZE_Memory<<endl;
+                    for (int i=0; i<5; i++){
+                        if (alive_ships[i]==SHIP_SIZE_Memory){
+                            in_the_process=false;
+                            alive_ships[i]=0;
+                            SHIP_SIZE_Memory=0;
+                            direction=0;
+                            end_of_a_ship=0;
+                        }
+                    }
+                }
+                else if(end_of_a_ship==2 && SHIP_SIZE_Memory==1){
+                    end_of_a_ship=0;
+                }
+            }
+            else if (direction==3){
+                direction_i=fired_y-1;
+                if (direction_i<0){
+                    end_of_a_ship++;
+                }
+                else{
+                    if (playerBoard[fired_x][direction_i] == SHIP ) {
+                        fired_y=direction_i;
+                        playerBoard[fired_x][fired_y] = HIT;
+                        enemyStrikeBoard[fired_x][fired_y] = SHIP;
+                        SHIP_SIZE_Memory++;
+                        cout << "Enemy hit your ship at " << char('A' + fired_y) << fired_x + 1 << "!\n";
+                    }
+                    else{
+                        cout << "Enemy missed at " << char('A' + direction_i) << fired_x + 1 << ".\n";
+                        playerBoard[fired_x][direction_i] = MISS;
+                        enemyStrikeBoard[fired_x][direction_i] = HIT;
+                        end_of_a_ship++;
+                        fired_y=probable_y;
+                        direction++;
+                        fired=true;
+                    }
+                }
+                if(end_of_a_ship==2 && SHIP_SIZE_Memory>1){
+                    //cout<<"SHIP SIZE_Memory ="<<SHIP_SIZE_Memory<<endl;
+                    for (int i=0; i<5; i++){
+                        if (alive_ships[i]==SHIP_SIZE_Memory){
+                            in_the_process=false;
+                            alive_ships[i]=0;
+                            SHIP_SIZE_Memory=0;
+                            direction=0;
+                            end_of_a_ship=0;
+                        }
+                    }
+                }
+                else if(end_of_a_ship==2 && SHIP_SIZE_Memory==1){
+                    end_of_a_ship=0;
+                }
+            }
+        }
+}
+
+// the full logic of the computer to shoor the ships
+void enemyTurn_Pro(int playerBoard[BOARD_SIZE][BOARD_SIZE]) {    
+    int SHIP_SIZE;
+    for (int i = 0; i < 5; i++) {
+        if (alive_ships[i] != 0) {
+            SHIP_SIZE = alive_ships[i];
+            break;
+        }
+    }
+
+    bool fired = false;
+    while (!fired) {
+        if (!in_the_process) {
+            // Initialize probability board based on ship size
+            switch (SHIP_SIZE) {
+                case 5:
+                    initializeProbabilityBoard(enemyStrikeBoard, enemyProbabilityBoard_5, SHIP_SIZE);
+                    probable_position(enemyProbabilityBoard_5, probable_x, probable_y);
+                    break;
+                case 4:
+                    initializeProbabilityBoard(enemyStrikeBoard, enemyProbabilityBoard_4, SHIP_SIZE);
+                    probable_position(enemyProbabilityBoard_4, probable_x, probable_y);
+                    break;
+                case 3:
+                    initializeProbabilityBoard(enemyStrikeBoard, enemyProbabilityBoard_3, SHIP_SIZE);
+                    probable_position(enemyProbabilityBoard_3, probable_x, probable_y);
+                    break;
+                case 2:
+                    initializeProbabilityBoard(enemyStrikeBoard, enemyProbabilityBoard_2, SHIP_SIZE);
+                    probable_position(enemyProbabilityBoard_2, probable_x, probable_y);
+                    break;
+            }
+
+            if (playerBoard[probable_x][probable_y] == EMPTY || playerBoard[probable_x][probable_y] == SHIP) {
+                //cout << "probable_x = " << probable_x << endl;
+                //cout << "probable_y = " << probable_y << endl;
+                //cout << "playerBoard[probable_x][probable_y] == " << playerBoard[probable_x][probable_y] << endl;
+
+                if (playerBoard[probable_x][probable_y] == SHIP) {
+                    cout << "Enemy hit your ship at " << char('A' + probable_y) << probable_x + 1 << "!\n";
+                    playerBoard[probable_x][probable_y] = HIT;
+                    enemyStrikeBoard[probable_x][probable_y] = SHIP;
+                    in_the_process = true;
+                    SHIP_SIZE_Memory++;
+                    fired_x = probable_x;
+                    fired_y=probable_y;
+                    //fired = true; // Set fired to true to exit the loop
+                } else {
+                    cout << "Enemy missed at " << char('A' + probable_y) << probable_x + 1 << ".\n";
+                    playerBoard[probable_x][probable_y] = MISS;
+                    enemyStrikeBoard[probable_x][probable_y] = HIT;
+                    fired = true; // Exit the loop after a miss
+                }
+            }
+        } 
+        else {
+            int direction_i;
+            if (direction==0){
+                direction_i=fired_x+1;
+                if (direction_i>BOARD_SIZE){
+                    end_of_a_ship++;
+                    direction++;
+                }
+                else{
+                    if (playerBoard[direction_i][fired_y] == SHIP) {
+                        fired_x=direction_i;
+                        playerBoard[fired_x][fired_y] = HIT;
+                        enemyStrikeBoard[fired_x][fired_y] = SHIP;
+                        SHIP_SIZE_Memory++;
+                        cout << "Enemy hit your ship at " << char('A' + fired_y) << fired_x + 1 << "!\n";
+                    }
+                    else{
+                        cout << "Enemy missed at " << char('A' + fired_y) << direction_i + 1 << ".\n";
+                        playerBoard[direction_i][fired_y] = MISS;
+                        enemyStrikeBoard[direction_i][fired_y] = HIT;
+                        end_of_a_ship++;
+                        fired_x=probable_x;
+                        direction++;
+                        fired = true;
+                    }
+                }
+                if(end_of_a_ship==2 && SHIP_SIZE_Memory>1){
+                    for (int i=0; i<5; i++){
+                        if (alive_ships[i]==SHIP_SIZE_Memory){
+                            alive_ships[i]=0;
+                            SHIP_SIZE_Memory=0;
+                            direction=0;
+                            end_of_a_ship=0;
+                            in_the_process=false;
+                        }
+                    }
+                }
+                else if(end_of_a_ship==2 && SHIP_SIZE_Memory==1){
+                    end_of_a_ship=0;
+                }
+            }
+            else if (direction==1){
+                direction_i=fired_x-1;
+                if (direction_i<0){
+                    end_of_a_ship++;
+                    direction++;
+                }
+                else{
+                    if (playerBoard[direction_i][fired_y] == SHIP) {
+                        fired_x=direction_i;
+                        playerBoard[fired_x][fired_y] = HIT;
+                        enemyStrikeBoard[fired_x][fired_y] = SHIP;
+                        SHIP_SIZE_Memory++;
+                        cout << "Enemy hit your ship at " << char('A' + fired_y) << fired_x + 1 << "!\n";
+                    }
+                    else{
+                        cout << "Enemy missed at " << char('A' + fired_y) << direction_i + 1 << ".\n";
+                        playerBoard[direction_i][fired_y] = MISS;
+                        enemyStrikeBoard[direction_i][fired_y] = HIT;
+                        end_of_a_ship++;
+                        fired_x=probable_x;
+                        direction++;
+                        fired=true;
+                    }
+                }
+                if(end_of_a_ship==2 && SHIP_SIZE_Memory>1){
+                    //cout<<"SHIP SIZE_Memory ="<<SHIP_SIZE_Memory<<endl;
+                    for (int i=0; i<5; i++){
+                        if (alive_ships[i]==SHIP_SIZE_Memory){
+                            alive_ships[i]=0;
+                            SHIP_SIZE_Memory=0;
+                            direction=0;
+                            end_of_a_ship=0;
+                            in_the_process=false;
+                        }
+                    }
+                }
+                else if(end_of_a_ship==2 && SHIP_SIZE_Memory==1){
+                    end_of_a_ship=0;
+                }
+            }
+            else if (direction==2){
+                direction_i=fired_y+1;
+                if (direction_i>BOARD_SIZE){
+                    end_of_a_ship++;
+                    direction++;
+                }
+                else{
+                    if (playerBoard[fired_x][direction_i] == SHIP) {
+                        fired_y=direction_i;
+                        playerBoard[fired_x][fired_y] = HIT;
+                        enemyStrikeBoard[fired_x][fired_y] = SHIP;
+                        SHIP_SIZE_Memory++;
+                        cout << "Enemy hit your ship at " << char('A' + fired_y) << fired_x + 1 << "!\n";
+                    }
+                    else{
+                        cout << "Enemy missed at " << char('A' + direction_i) << fired_x + 1 << ".\n";
+                        playerBoard[fired_x][direction_i] = MISS;
+                        enemyStrikeBoard[fired_x][direction_i] = HIT;
+                        end_of_a_ship++;
+                        //cout<<"probable_y = "<<probable_y<<endl;
+                        fired_y=probable_y;
+                        direction++;
+                        fired=true;
+                    }
+                }
+                if(end_of_a_ship==2 && SHIP_SIZE_Memory>1){
+                    //cout<<"SHIP SIZE_Memory ="<<SHIP_SIZE_Memory<<endl;
+                    for (int i=0; i<5; i++){
+                        if (alive_ships[i]==SHIP_SIZE_Memory){
+                            in_the_process=false;
+                            alive_ships[i]=0;
+                            SHIP_SIZE_Memory=0;
+                            direction=0;
+                            end_of_a_ship=0;
+                        }
+                    }
+                }
+                else if(end_of_a_ship==2 && SHIP_SIZE_Memory==1){
+                    end_of_a_ship=0;
+                }
+            }
+            else if (direction==3){
+                direction_i=fired_y-1;
+                if (direction_i<0){
+                    end_of_a_ship++;
+                }
+                else{
+                    if (playerBoard[fired_x][direction_i] == SHIP ) {
+                        fired_y=direction_i;
+                        playerBoard[fired_x][fired_y] = HIT;
+                        enemyStrikeBoard[fired_x][fired_y] = SHIP;
+                        SHIP_SIZE_Memory++;
+                        cout << "Enemy hit your ship at " << char('A' + fired_y) << fired_x + 1 << "!\n";
+                    }
+                    else{
+                        cout << "Enemy missed at " << char('A' + direction_i) << fired_x + 1 << ".\n";
+                        playerBoard[fired_x][direction_i] = MISS;
+                        enemyStrikeBoard[fired_x][direction_i] = HIT;
+                        end_of_a_ship++;
+                        fired_y=probable_y;
+                        direction++;
+                        fired=true;
+                    }
+                }
+                if(end_of_a_ship==2 && SHIP_SIZE_Memory>1){
+                    //cout<<"SHIP SIZE_Memory ="<<SHIP_SIZE_Memory<<endl;
+                    for (int i=0; i<5; i++){
+                        if (alive_ships[i]==SHIP_SIZE_Memory){
+                            in_the_process=false;
+                            alive_ships[i]=0;
+                            SHIP_SIZE_Memory=0;
+                            direction=0;
+                            end_of_a_ship=0;
+                        }
+                    }
+                }
+                else if(end_of_a_ship==2 && SHIP_SIZE_Memory==1){
+                    end_of_a_ship=0;
+                }
+            }
+        }
+    }
+}
+//Yera Final
+
+
+
 bool enemyTurn(
     int board[BOARD_SIZE][BOARD_SIZE],
     char diff,
@@ -326,7 +1040,7 @@ bool enemyTurn(
         }
     }
     else if (diff == '2'){
-        //enemyTurn_HalfPro(playerBoard);
+        enemyTurn_HalfPro(playerBoard);
     }
     else if (diff == '3') {
         if (!enemyAttacks.empty()) {
@@ -398,7 +1112,7 @@ bool enemyTurn(
         }
     }
     else if (diff == '4'){
-        //enemyTurn_Pro(playerBoard);
+        enemyTurn_Pro(playerBoard);
     }
     return false;
 }
@@ -481,6 +1195,8 @@ bool isGameOver(
     }
     return true;
 }
+
+
 
 int main_gameplay_loop() {
     srand(static_cast<unsigned>(time(nullptr)));
