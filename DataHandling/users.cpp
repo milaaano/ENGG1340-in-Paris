@@ -197,7 +197,7 @@ void printLeaderboard(Leaderboard & leaderboard) {
             return !(*a < *b);
         });
     }
-    cout << setfill('-') << setw(15) << right << "Leaderboard" << setw(4) << '\n';
+    cout << setfill('-') << setw(17) << right << "Leaderboard" << setw(7) << '\n';
     cout <<setfill(' ');
     for (int i = 0; i < leaderboard.size(); i++) {
         (leaderboard[i]->printUser(i + 1));
