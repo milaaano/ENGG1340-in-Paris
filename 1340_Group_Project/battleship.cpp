@@ -116,12 +116,11 @@ void getCoordinates(string input, int &row, int &col)
 }
 
 void placePlayerShips(int playerBoard[BOARD_SIZE][BOARD_SIZE]) {
-    
+    printBoard(playerBoard, true);
     for (int i = 0; i < NUM_SHIPS; i++) {
         int size = SHIP_SIZES[i];
         bool placed = false;
         while (!placed) {
-            printBoard(playerBoard, true);
             string input;
             cout << "Enter starting position and direction (H/V) for your " << size << "-square ship (e.g. A4 H): ";
             getline(cin >> ws, input);
@@ -156,7 +155,7 @@ void placePlayerShips(int playerBoard[BOARD_SIZE][BOARD_SIZE]) {
 
             if (isPlacementValid(playerBoard, row, col, size, dRow, dCol)) {
                 placeShip(playerBoard, row, col, size, dRow, dCol);
-                
+                printBoard(playerBoard, true);
                 placed = true;
             } else {
                 cout << "Invalid placement. Either out of bounds or overlaps another ship. Try again.\n";

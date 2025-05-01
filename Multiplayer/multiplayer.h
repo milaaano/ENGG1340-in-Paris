@@ -1,6 +1,6 @@
 // Include local files
 #include "../DataHandling/users.h"
-#include "../1340 Group Project/battleship.h"
+#include "../1340_Group_Project/battleship.h"
 
 // Include standard libraries
 #include <iostream>

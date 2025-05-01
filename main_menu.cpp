@@ -68,7 +68,7 @@ int main() {
 
         char choice = line[0];
         string valid_mode_choice = "1234";
-        char difficulty_choice;
+        extern char difficulty_choice;
         switch (choice) {
           case '1': 
             // Chose difficulty
