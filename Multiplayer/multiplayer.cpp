@@ -25,12 +25,7 @@ bool login_or_signup(Users &users, User *&logged_user, Leaderboard &leaderboard,
         cin >> password;
 
         // Checks if player 1 is currently logging in
-        if (current_users[0][0] == "" && current_users[0][1] == "")
-        {
-            current_users[0][0] = username;
-            current_users[0][1] = password;
-        }
-        else if ((current_users[1][0] == "" && current_users[1][1] == "") && (current_users[0][0] == username && current_users[0][1] == password))
+        if ((current_users[1][0] == "" && current_users[1][1] == "") && (current_users[0][0] == username && current_users[0][1] == password))
         {
             cout << "Sorry, " << username << " is already logged in!" << endl;
             return false;
@@ -42,20 +37,27 @@ bool login_or_signup(Users &users, User *&logged_user, Leaderboard &leaderboard,
         }
 
         bool login_success = false;
-
+        pair<bool, string> login_status;
         while (!login_success)
         {
-
-            if (get<0>(loginUser(users, username, password, logged_user))) // Checks if login is successful
+            login_status = loginUser(users, username, password, logged_user);
+            if (login_status.first) // Checks if login is successful
             {
                 cout << "Welcome " << logged_user->getName() << "!" << endl; // No arguments in new vers
                 cout << "Login successful" << endl;
                 login_success = true;
+
+                if (current_users[0][0] == "" && current_users[0][1] == "")
+                {
+                    current_users[0][0] = username;
+                    current_users[0][1] = password;
+                }
+
                 return true;
             }
             else
             {
-                cout << "Login failed" << endl;
+                cout << login_status.second << endl;
                 return false;
             }
         }
@@ -90,7 +92,7 @@ void handleWin(User *&winner, User *&loser, Users &users)
     updateRating(users[winner->getName()].score, users[loser->getName()].score, 1);
 }
 
-int main_multiplayer(Users & users, Leaderboard & leaderboard)
+int main_multiplayer(Users &users, Leaderboard &leaderboard)
 {
     // ---- Login or sign up ----
     cout << "Welcome to Battleship Multiplayer!" << endl;
@@ -101,20 +103,20 @@ int main_multiplayer(Users & users, Leaderboard & leaderboard)
     bool player2_logged_in = false;
 
     // User 1
-    cout << "Please login or sign up for user 1" << endl;
     User *player1 = nullptr;
     player1_logged_in = false;
     while (!player1_logged_in)
     {
+        cout << "Please login or sign up for user 1" << endl;
         player1_logged_in = login_or_signup(users, player1, leaderboard, current_users);
     }
 
     // User 2
-    cout << "Please login or sign up for user 2" << endl;
     User *player2 = nullptr;
     player2_logged_in = false;
     while (!player2_logged_in)
     {
+        cout << "Please login or sign up for user 2" << endl;
         player2_logged_in = login_or_signup(users, player2, leaderboard, current_users);
     }
 
@@ -142,7 +144,7 @@ int main_multiplayer(Users & users, Leaderboard & leaderboard)
     // --- Main game loop ---
     while (true)
     {
-        cout << "\n--- " << player1->getName() << " Turn ---\n";
+        cout << "\n--- " << current_users[0][0] << " Turn ---\n";
         printBoard(player1Display, false);
         humanTurn(player1Display, player2Board);
         if (isGameOver(player2Board))
@@ -151,7 +153,7 @@ int main_multiplayer(Users & users, Leaderboard & leaderboard)
             break;
         }
         clearScreen();
-        cout << "\n--- " << player2->getName() << " Turn ---\n";
+        cout << "\n--- " << current_users[1][0] << " Turn ---\n";
         printBoard(player2Display, false);
         humanTurn(player2Display, player1Board);
         if (isGameOver(player1Board))
