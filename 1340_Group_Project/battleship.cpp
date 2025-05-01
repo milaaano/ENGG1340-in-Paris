@@ -1,282 +1,541 @@
-#include <iostream> 
+#include <iostream>
 #include <cstdlib>
 #include <ctime>
 #include <string>
 #include <cctype>
 #include <cmath>
+#include <vector>
 #include "battleship.h"
-
 using namespace std;
 
-const int BOARD_SIZE = 10;
-const int EMPTY = 0;
-const int SHIP = 1;
-const int HIT = 2;
-const int MISS = 3;
+enum Direction { LEFT = 0, UP, RIGHT, DOWN };
 
-const int NUM_SHIPS = 5;
+struct AttackRecord {
+    int row;
+    int col;
+    bool dir[4];
+
+    AttackRecord(int r, int c) : row(r), col(c) {
+        for (int i = 0; i < 4; ++i) dir[i] = true;
+    }
+};
+
+static vector<AttackRecord> enemyAttacks;
+
+const int BOARD_SIZE = 10;
+const int EMPTY      = 0;
+const int SHIP       = 1;
+const int HIT        = 2;
+const int MISS       = 3;
+
+const int NUM_SHIPS  = 5;
 const int SHIP_SIZES[NUM_SHIPS] = {5, 4, 3, 3, 2};
 
-void initializeBoard(int board[BOARD_SIZE][BOARD_SIZE])
-{
-    for (int i = 0; i < BOARD_SIZE; i++)
-        for (int j = 0; j < BOARD_SIZE; j++)
-            board[i][j] = EMPTY;
+extern char difficulty_choice;
+
+void clearScreen() {
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
 }
 
-void printBoard(int board[BOARD_SIZE][BOARD_SIZE], bool showShips)
-{
-    cout << "    ";
-    for (char c = 'A'; c < 'A' + BOARD_SIZE; c++)
-        cout << c << " ";
-    cout << endl;
-    for (int i = 0; i < BOARD_SIZE; i++)
-    {
-        cout << (i + 1 < 10 ? " " : "") << i + 1 << "  ";
-        for (int j = 0; j < BOARD_SIZE; j++)
-        {
-            if (board[i][j] == HIT)
-                cout << "x ";
-            else if (board[i][j] == MISS)
-                cout << "o ";
-            else if (board[i][j] == SHIP && showShips)
-                cout << "S ";
-            else
-                cout << ". ";
+void initializeBoard(
+    int board[BOARD_SIZE][BOARD_SIZE]
+) {
+    for (int i = 0; i < BOARD_SIZE; ++i) {
+        for (int j = 0; j < BOARD_SIZE; ++j) {
+            board[i][j] = EMPTY;
         }
-        cout << endl;
     }
 }
 
-bool isPlacementValid(int board[BOARD_SIZE][BOARD_SIZE], int row, int col, int size, int dRow, int dCol)
-{
-    for (int i = 0; i < size; i++)
-    {
+void printBoard(
+    int board[BOARD_SIZE][BOARD_SIZE],
+    bool showShips
+) {
+    cout << "    ";
+    for (char c = 'A'; c < 'A' + BOARD_SIZE; ++c) {
+        cout << c << ' ';
+    }
+    cout << '\n';
+
+    for (int i = 0; i < BOARD_SIZE; ++i) {
+        if (i + 1 < 10) {
+            cout << ' ';
+        }
+        cout << (i + 1) << "  ";
+
+        for (int j = 0; j < BOARD_SIZE; ++j) {
+            if (board[i][j] == HIT) {
+                cout << "x ";
+            }
+            else if (board[i][j] == MISS) {
+                cout << "o ";
+            }
+            else if (board[i][j] == SHIP && showShips) {
+                cout << "S ";
+            }
+            else {
+                cout << ". ";
+            }
+        }
+
+        cout << '\n';
+    }
+}
+
+void getCoordinates(
+    const string &input,
+    int &row,
+    int &col
+) {
+    char letter = toupper(input[0]);
+    col = letter - 'A';
+
+    string numberPart = input.substr(1);
+    row = stoi(numberPart) - 1;
+}
+
+bool isPlacementValid(
+    int board[BOARD_SIZE][BOARD_SIZE],
+    int row,
+    int col,
+    int size,
+    int dRow,
+    int dCol
+) {
+    for (int i = 0; i < size; ++i) {
         int r = row + i * dRow;
         int c = col + i * dCol;
-        if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE || board[r][c] != EMPTY)
-            return false;
 
-        for (int dr = -1; dr <= 1; dr++)
-        {
-            for (int dc = -1; dc <= 1; dc++)
-            {
+        if (r < 0
+            || r >= BOARD_SIZE
+            || c < 0
+            || c >= BOARD_SIZE
+            || board[r][c] != EMPTY) {
+            return false;
+        }
+
+        for (int dr = -1; dr <= 1; ++dr) {
+            for (int dc = -1; dc <= 1; ++dc) {
                 int nr = r + dr;
                 int nc = c + dc;
-                if (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE && board[nr][nc] == SHIP)
+                if (nr >= 0
+                    && nr < BOARD_SIZE
+                    && nc >= 0
+                    && nc < BOARD_SIZE
+                    && board[nr][nc] == SHIP) {
                     return false;
+                }
             }
         }
     }
+
     return true;
 }
 
-void placeShip(int board[BOARD_SIZE][BOARD_SIZE], int row, int col, int size, int dRow, int dCol)
-{
-    for (int i = 0; i < size; i++)
-    {
+void placeShip(
+    int board[BOARD_SIZE][BOARD_SIZE],
+    int row,
+    int col,
+    int size,
+    int dRow,
+    int dCol
+) {
+    for (int i = 0; i < size; ++i) {
         int r = row + i * dRow;
         int c = col + i * dCol;
-        if (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE)
-        {
+        if (r >= 0
+            && r < BOARD_SIZE
+            && c >= 0
+            && c < BOARD_SIZE) {
             board[r][c] = SHIP;
         }
     }
 }
 
-void placeRandomShips(int board[BOARD_SIZE][BOARD_SIZE])
-{
-    for (int i = 0; i < NUM_SHIPS; i++)
-    {
-        int size = SHIP_SIZES[i];
+void placeRandomShips(
+    int board[BOARD_SIZE][BOARD_SIZE]
+) {
+    for (int index = 0; index < NUM_SHIPS; ++index) {
+        int size = SHIP_SIZES[index];
         bool placed = false;
-        while (!placed)
-        {
-            int row = rand() % BOARD_SIZE;
-            int col = rand() % BOARD_SIZE;
-            bool horizontal = rand() % 2;
-            int dRow = horizontal ? 0 : 1;
-            int dCol = horizontal ? 1 : 0;
-            int edgeBias = rand() % 100;
-            if (edgeBias < 70 && (row > 2 && row < 7 && col > 2 && col < 7)) continue;
-            if (isPlacementValid(board, row, col, size, dRow, dCol))
-            {
-                placeShip(board, row, col, size, dRow, dCol);
-                placed = true;
-            }
-        }
-    }
-}
 
-void getCoordinates(string input, int &row, int &col)
-{
-    input[0] = toupper(input[0]);
-    col = input[0] - 'A';
-    row = stoi(input.substr(1)) - 1;
-}
-
-void placePlayerShips(int playerBoard[BOARD_SIZE][BOARD_SIZE]) {
-    printBoard(playerBoard, true);
-    for (int i = 0; i < NUM_SHIPS; i++) {
-        int size = SHIP_SIZES[i];
-        bool placed = false;
         while (!placed) {
-            string input;
-            cout << "Enter starting position and direction (H/V) for your " << size << "-square ship (e.g. A4 H): ";
-            getline(cin >> ws, input);
+            int r = rand() % BOARD_SIZE;
+            int c = rand() % BOARD_SIZE;
+            bool horizontal = (rand() % 2 == 1);
+            int dR = horizontal ? 0 : 1;
+            int dC = horizontal ? 1 : 0;
 
-            size_t spacePos = input.find(' ');
-            if (spacePos == string::npos || spacePos == 0 || spacePos == input.length() - 1) {
-                cout << "Invalid format. Use format like A4 H (with a space). Try again.\n";
-                continue;
-            }
-
-            string coord = input.substr(0, spacePos);
-            string direction = input.substr(spacePos + 1);
-
-            coord[0] = toupper(coord[0]);
-            direction[0] = toupper(direction[0]);
-
-            int dRow = 0, dCol = 0;
-            if (direction[0] == 'H') dCol = 1;
-            else if (direction[0] == 'V') dRow = 1;
-            else {
-                cout << "Invalid direction. Use H or V. Try again.\n";
-                continue;
-            }
-
-            int row, col;
-            try {
-                getCoordinates(coord, row, col);
-            } catch (...) {
-                cout << "Invalid coordinate format. Try again.\n";
-                continue;
-            }
-
-            if (isPlacementValid(playerBoard, row, col, size, dRow, dCol)) {
-                placeShip(playerBoard, row, col, size, dRow, dCol);
-                printBoard(playerBoard, true);
+            if (isPlacementValid(board, r, c, size, dR, dC)) {
+                placeShip(board, r, c, size, dR, dC);
                 placed = true;
-            } else {
-                cout << "Invalid placement. Either out of bounds or overlaps another ship. Try again.\n";
             }
         }
     }
 }
 
-void humanTurn(int displayBoard[BOARD_SIZE][BOARD_SIZE], int targetBoard[BOARD_SIZE][BOARD_SIZE]) {
+void placePlayerShips(
+    int board[BOARD_SIZE][BOARD_SIZE]
+) {
+    for (int index = 0; index < NUM_SHIPS; ++index) {
+        int size = SHIP_SIZES[index];
+        bool placed = false;
+
+        while (!placed) {
+            clearScreen();
+            printBoard(board, true);
+            cout << "Enter start coord and direction (H/V) for your "
+                 << size << "-cell ship: ";
+
+            string line;
+            getline(cin >> ws, line);
+
+            size_t spacePos = line.find(' ');
+            if (spacePos == string::npos) {
+                cout << "Format must be 'A4 H'. Try again.\n";
+                continue;
+            }
+
+            string coord = line.substr(0, spacePos);
+            char dirChar = toupper(line[spacePos + 1]);
+
+            int dR = 0;
+            int dC = 0;
+            if (dirChar == 'H') {
+                dC = 1;
+            }
+            else if (dirChar == 'V') {
+                dR = 1;
+            }
+            else {
+                cout << "Direction must be H or V.\n";
+                continue;
+            }
+
+            int r, c;
+            try {
+                getCoordinates(coord, r, c);
+            }
+            catch (...) {
+                cout << "Invalid coordinate. Try again.\n";
+                continue;
+            }
+
+            if (isPlacementValid(board, r, c, size, dR, dC)) {
+                placeShip(board, r, c, size, dR, dC);
+                placed = true;
+            }
+            else {
+                cout << "Cannot place ship there.\n";
+            }
+        }
+    }
+}
+
+bool humanTurn(
+    int displayBoard[BOARD_SIZE][BOARD_SIZE],
+    int targetBoard[BOARD_SIZE][BOARD_SIZE]
+) {
     while (true) {
+        cout << "Your shot (e.g. A5): ";
         string input;
-        cout << "Enter your shot (e.g. A5): ";
         getline(cin >> ws, input);
 
-        if (input.length() < 2 || !isalpha(input[0]) || !isdigit(input[1])) {
-            cout << "Invalid input. Try again.\n";
+        if (input.size() < 2
+            || !isalpha(input[0])
+            || !isdigit(input[1])) {
+            cout << "Invalid input.\n";
             continue;
         }
 
-        input[0] = toupper(input[0]);
-        int row, col;
+        int r;
+        int c;
         try {
-            getCoordinates(input, row, col);
-        } catch (...) {
-            cout << "Invalid coordinate. Try again.\n";
+            getCoordinates(input, r, c);
+        }
+        catch (...) {
+            cout << "Bad coordinate.\n";
             continue;
         }
 
-        if (row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE) {
-            cout << "Out of bounds. Try again.\n";
+        if (r < 0
+            || r >= BOARD_SIZE
+            || c < 0
+            || c >= BOARD_SIZE) {
+            cout << "Out of bounds.\n";
             continue;
         }
 
-        if (displayBoard[row][col] != EMPTY) {
-            cout << "Already targeted. Try again.\n";
+        if (displayBoard[r][c] != EMPTY) {
+            cout << "Already targeted.\n";
             continue;
         }
 
-        if (targetBoard[row][col] == SHIP) {
+        if (targetBoard[r][c] == SHIP) {
             cout << "Hit!\n";
-            displayBoard[row][col] = HIT;
-            targetBoard[row][col] = HIT;
-        } else {
+            displayBoard[r][c] = HIT;
+            targetBoard[r][c] = HIT;
+            return true;
+        }
+        else {
             cout << "Miss.\n";
-            displayBoard[row][col] = MISS;
+            displayBoard[r][c] = MISS;
+            return false;
         }
-        break;
     }
 }
 
-void randomTurn(int targetBoard[BOARD_SIZE][BOARD_SIZE]) {
-    int row, col;
-    bool fired = false;
-    while (!fired) {
-        row = rand() % BOARD_SIZE;
-        col = rand() % BOARD_SIZE;
+bool enemyTurn(
+    int board[BOARD_SIZE][BOARD_SIZE],
+    char diff,
+    int sunkShips[6]
+) {
+    if (diff == '1') {
+        bool fired = false;
+        while (!fired) {
+            int r = rand() % BOARD_SIZE;
+            int c = rand() % BOARD_SIZE;
 
-        if (row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE)
-            continue;
+            if (board[r][c] == EMPTY
+                || board[r][c] == SHIP) {
+                if (board[r][c] == SHIP) {
+                    cout << "Enemy hit at "
+                         << char('A' + c)
+                         << (r + 1)
+                         << "!\n";
 
-        if (targetBoard[row][col] == EMPTY || targetBoard[row][col] == SHIP) {
-            if (targetBoard[row][col] == SHIP) {
-                cout << "Enemy hit your ship at " << char('A' + col) << row + 1 << "!\n";
-                targetBoard[row][col] = HIT;
-            } else {
-                cout << "Enemy missed at " << char('A' + col) << row + 1 << ".\n";
-                targetBoard[row][col] = MISS;
+                    board[r][c] = HIT;
+                    fired = true;
+                    return true;
+                }
+                else {
+                    cout << "Enemy missed at "
+                         << char('A' + c)
+                         << (r + 1)
+                         << ".\n";
+
+                    board[r][c] = MISS;
+                    fired = true;
+                    return false;
+                }
             }
-            fired = true;
+        }
+    }
+    else if (diff == '2'){
+        //enemyTurn_HalfPro(playerBoard);
+    }
+    else if (diff == '3') {
+        if (!enemyAttacks.empty()) {
+            AttackRecord &rec = enemyAttacks.back();
+            for (int d = 0; d < 4; ++d) {
+                if (!rec.dir[d]) continue;
+                int nr = rec.row;
+                int nc = rec.col;
+                switch (d) {
+                    case LEFT:  nc -= 1; break;
+                    case UP:    nr -= 1; break;
+                    case RIGHT: nc += 1; break;
+                    case DOWN:  nr += 1; break;
+                }
+                rec.dir[d] = false;
+                if (nr < 0 || nr >= BOARD_SIZE || nc < 0 || nc >= BOARD_SIZE) continue;
+                if (board[nr][nc] != EMPTY && board[nr][nc] != SHIP) continue;
+                if (board[nr][nc] == SHIP) {
+                    cout << "Enemy hit at " << char('A' + nc) << (nr + 1) << "!\n";
+                    board[nr][nc] = HIT;
+                    if (d == LEFT || d == RIGHT) {
+                        rec.dir[UP] = false;
+                        rec.dir[DOWN] = false;
+                    } else {
+                        rec.dir[LEFT] = false;
+                        rec.dir[RIGHT] = false;
+                    }
+                    enemyAttacks.emplace_back(nr, nc);
+                    return true;
+                } else {
+                    cout << "Enemy missed at " << char('A' + nc) << (nr + 1) << ".\n";
+                    board[nr][nc] = MISS;
+                    return false;
+                }
+            }
+            enemyAttacks.clear();
+        }
+        int spacing = 2;
+        for (int s = 2; s <= 5; ++s) {
+            int total = 0;
+            for (int i = 0; i < NUM_SHIPS; ++i) {
+                if (SHIP_SIZES[i] == s) total++;
+            }
+            if (sunkShips[s] < total) {
+                spacing = s;
+                break;
+            }
+        }
+        static int lastIdx = 0;
+        int totalCells = BOARD_SIZE * BOARD_SIZE;
+        for (int attempt = 0; attempt < totalCells; ++attempt) {
+            int idx = (lastIdx + attempt * spacing) % totalCells;
+            int r = idx / BOARD_SIZE;
+            int c = idx % BOARD_SIZE;
+            if (board[r][c] == EMPTY || board[r][c] == SHIP) {
+                if (board[r][c] == SHIP) {
+                    cout << "Enemy hit at " << char('A' + c) << (r + 1) << "!\n";
+                    board[r][c] = HIT;
+                    enemyAttacks.emplace_back(r, c);
+                    lastIdx = idx;
+                    return true;
+                } else {
+                    cout << "Enemy missed at " << char('A' + c) << (r + 1) << ".\n";
+                    board[r][c] = MISS;
+                    lastIdx = idx;
+                    return false;
+                }
+            }
+        }
+    }
+    else if (diff == '4'){
+        //enemyTurn_Pro(playerBoard);
+    }
+    return false;
+}
+
+// Yerassyl
+
+// Yerassyl
+
+void updateSunkShips(
+    int board[BOARD_SIZE][BOARD_SIZE],
+    int sunkShips[6]
+) {
+    bool visited[BOARD_SIZE][BOARD_SIZE] = {false};
+
+    for (int r = 0; r < BOARD_SIZE; ++r) {
+        for (int c = 0; c < BOARD_SIZE; ++c) {
+            if (board[r][c] == HIT && !visited[r][c]) {
+                int length = 0;
+
+                for (int cc = c;
+                     cc < BOARD_SIZE
+                     && board[r][cc] == HIT;
+                     ++cc) {
+                    visited[r][cc] = true;
+                    ++length;
+                }
+                if (length > 1) {
+                    bool sunkOk = true;
+                    for (int i = 0;
+                         i < length;
+                         ++i) {
+                        if (board[r][c + i] == SHIP) {
+                            sunkOk = false;
+                            break;
+                        }
+                    }
+                    if (sunkOk) {
+                        ++sunkShips[length];
+                    }
+                    continue;
+                }
+
+
+                length = 0;
+                for (int rr = r;
+                     rr < BOARD_SIZE
+                     && board[rr][c] == HIT;
+                     ++rr) {
+                    visited[rr][c] = true;
+                    ++length;
+                }
+                if (length > 1) {
+                    bool sunkOk = true;
+                    for (int i = 0;
+                         i < length;
+                         ++i) {
+                        if (board[r + i][c] == SHIP) {
+                            sunkOk = false;
+                            break;
+                        }
+                    }
+                    if (sunkOk) {
+                        ++sunkShips[length];
+                    }
+                }
+            }
         }
     }
 }
 
-bool isGameOver(int board[BOARD_SIZE][BOARD_SIZE])
-{
-    for (int i = 0; i < BOARD_SIZE; i++)
-    {
-        for (int j = 0; j < BOARD_SIZE; j++)
-        {
-            if (board[i][j] == SHIP)
+bool isGameOver(
+    int board[BOARD_SIZE][BOARD_SIZE]
+) {
+    for (int i = 0; i < BOARD_SIZE; ++i) {
+        for (int j = 0; j < BOARD_SIZE; ++j) {
+            if (board[i][j] == SHIP) {
                 return false;
+            }
         }
     }
     return true;
 }
 
-int main_gameplay_loop()
-{
-    srand(time(0));
+int main_gameplay_loop() {
+    srand(static_cast<unsigned>(time(nullptr)));
+
     int playerBoard[BOARD_SIZE][BOARD_SIZE];
-    int enemyBoard[BOARD_SIZE][BOARD_SIZE];
-    int enemyDisplay[BOARD_SIZE][BOARD_SIZE];
+    int enemyBoard [BOARD_SIZE][BOARD_SIZE];
+    int displayBoard[BOARD_SIZE][BOARD_SIZE];
+    int sunkShipsArr[6] = {0};
 
     initializeBoard(playerBoard);
     initializeBoard(enemyBoard);
-    initializeBoard(enemyDisplay);
+    initializeBoard(displayBoard);
 
-    cout << "\nPlace your ships:\n";
+    cout << "Place your ships...\n";
     placePlayerShips(playerBoard);
     placeRandomShips(enemyBoard);
 
-    while (true)
-    {
-        cout << "\n--- Player Board ---\n";
+    bool playerTurn = true;
+    while (true) {
+        clearScreen();
+        cout << "--- Player Board ---\n";
         printBoard(playerBoard, true);
-        cout << "\n--- Enemy Board ---\n";
-        printBoard(enemyDisplay, false);
+        cout << "--- Enemy Board ---\n";
+        printBoard(displayBoard, false);
 
-        humanTurn(enemyDisplay, enemyBoard);
-        if (isGameOver(enemyBoard))
-        {
-            cout << "\nYou win!\n";
-            break;
+        bool hit = false;
+        if (playerTurn) {
+            hit = humanTurn(displayBoard, enemyBoard);
+            if (hit) {
+                updateSunkShips(enemyBoard, sunkShipsArr);
+                if (isGameOver(enemyBoard)) {
+                    cout << "You win!\n";
+                    break;
+                }
+            }
+        }
+        else {
+            hit = enemyTurn(playerBoard, difficulty_choice, sunkShipsArr);
+            if (hit) {
+                updateSunkShips(playerBoard, sunkShipsArr);
+                if (isGameOver(playerBoard)) {
+                    cout << "Enemy wins!\n";
+                    break;
+                }
+            }
         }
 
-        randomTurn(playerBoard);
-        if (isGameOver(playerBoard))
-        {
-            cout << "\nEnemy wins.\n";
-            break;
+        if (!hit) {
+            playerTurn = !playerTurn;
         }
     }
+
     return 0;
+}
+
+int main() {
+    return main_gameplay_loop();
 }
