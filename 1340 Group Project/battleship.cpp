@@ -1,4 +1,4 @@
-#include <iostream>
+#include <iostream> 
 #include <cstdlib>
 #include <ctime>
 #include <string>
@@ -20,12 +20,8 @@ const int SHIP_SIZES[NUM_SHIPS] = {5, 4, 3, 3, 2};
 void initializeBoard(int board[BOARD_SIZE][BOARD_SIZE])
 {
     for (int i = 0; i < BOARD_SIZE; i++)
-    {
         for (int j = 0; j < BOARD_SIZE; j++)
-        {
             board[i][j] = EMPTY;
-        }
-    }
 }
 
 void printBoard(int board[BOARD_SIZE][BOARD_SIZE], bool showShips)
@@ -59,9 +55,8 @@ bool isPlacementValid(int board[BOARD_SIZE][BOARD_SIZE], int row, int col, int s
         int r = row + i * dRow;
         int c = col + i * dCol;
         if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE || board[r][c] != EMPTY)
-        {
             return false;
-        }
+
         for (int dr = -1; dr <= 1; dr++)
         {
             for (int dc = -1; dc <= 1; dc++)
@@ -69,9 +64,7 @@ bool isPlacementValid(int board[BOARD_SIZE][BOARD_SIZE], int row, int col, int s
                 int nr = r + dr;
                 int nc = c + dc;
                 if (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE && board[nr][nc] == SHIP)
-                {
                     return false;
-                }
             }
         }
     }
@@ -82,7 +75,12 @@ void placeShip(int board[BOARD_SIZE][BOARD_SIZE], int row, int col, int size, in
 {
     for (int i = 0; i < size; i++)
     {
-        board[row + i * dRow][col + i * dCol] = SHIP;
+        int r = row + i * dRow;
+        int c = col + i * dCol;
+        if (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE)
+        {
+            board[r][c] = SHIP;
+        }
     }
 }
 
@@ -97,14 +95,10 @@ void placeRandomShips(int board[BOARD_SIZE][BOARD_SIZE])
             int row = rand() % BOARD_SIZE;
             int col = rand() % BOARD_SIZE;
             bool horizontal = rand() % 2;
-
             int dRow = horizontal ? 0 : 1;
             int dCol = horizontal ? 1 : 0;
-
             int edgeBias = rand() % 100;
-            if (edgeBias < 70 && (row > 2 && row < 7 && col > 2 && col < 7))
-                continue;
-
+            if (edgeBias < 70 && (row > 2 && row < 7 && col > 2 && col < 7)) continue;
             if (isPlacementValid(board, row, col, size, dRow, dCol))
             {
                 placeShip(board, row, col, size, dRow, dCol);
@@ -116,114 +110,117 @@ void placeRandomShips(int board[BOARD_SIZE][BOARD_SIZE])
 
 void getCoordinates(string input, int &row, int &col)
 {
-    col = toupper(input[0]) - 'A';
+    input[0] = toupper(input[0]);
+    col = input[0] - 'A';
     row = stoi(input.substr(1)) - 1;
 }
 
-void placePlayerShips(int playerBoard[BOARD_SIZE][BOARD_SIZE])
-{
-    for (int i = 0; i < NUM_SHIPS; i++)
-    {
+void placePlayerShips(int playerBoard[BOARD_SIZE][BOARD_SIZE]) {
+    printBoard(playerBoard, true);
+    for (int i = 0; i < NUM_SHIPS; i++) {
         int size = SHIP_SIZES[i];
         bool placed = false;
-        while (!placed)
-        {
-            string startInput, endInput;
-            cout << "Enter starting and ending positions for your " << size << "-square ship (e.g. A4 A" << (4 + size - 1) << " or A4 " << char('A' + size - 1) << "4): ";
-            cin >> startInput >> endInput;
+        while (!placed) {
+            string input;
+            cout << "Enter starting position and direction (H/V) for your " << size << "-square ship (e.g. A4 H): ";
+            getline(cin >> ws, input);
 
-            int startRow, startCol, endRow, endCol;
-            getCoordinates(startInput, startRow, startCol);
-            getCoordinates(endInput, endRow, endCol);
-
-            int dRow = endRow - startRow;
-            int dCol = endCol - startCol;
-            int length = max(abs(dRow), abs(dCol)) + 1;
-
-            if (length != size || (dRow != 0 && dCol != 0))
-            {
-                cout << "Invalid length or diagonal direction not allowed. Try again.\n";
+            size_t spacePos = input.find(' ');
+            if (spacePos == string::npos || spacePos == 0 || spacePos == input.length() - 1) {
+                cout << "Invalid format. Use format like A4 H (with a space). Try again.\n";
                 continue;
             }
 
-            dRow = (dRow == 0) ? 0 : (dRow > 0 ? 1 : -1);
-            dCol = (dCol == 0) ? 0 : (dCol > 0 ? 1 : -1);
+            string coord = input.substr(0, spacePos);
+            string direction = input.substr(spacePos + 1);
 
-            if (isPlacementValid(playerBoard, startRow, startCol, size, dRow, dCol))
-            {
-                placeShip(playerBoard, startRow, startCol, size, dRow, dCol);
+            coord[0] = toupper(coord[0]);
+            direction[0] = toupper(direction[0]);
+
+            int dRow = 0, dCol = 0;
+            if (direction[0] == 'H') dCol = 1;
+            else if (direction[0] == 'V') dRow = 1;
+            else {
+                cout << "Invalid direction. Use H or V. Try again.\n";
+                continue;
+            }
+
+            int row, col;
+            try {
+                getCoordinates(coord, row, col);
+            } catch (...) {
+                cout << "Invalid coordinate format. Try again.\n";
+                continue;
+            }
+
+            if (isPlacementValid(playerBoard, row, col, size, dRow, dCol)) {
+                placeShip(playerBoard, row, col, size, dRow, dCol);
                 printBoard(playerBoard, true);
                 placed = true;
-            }
-            else
-            {
-                cout << "Invalid placement. Try again.\n";
+            } else {
+                cout << "Invalid placement. Either out of bounds or overlaps another ship. Try again.\n";
             }
         }
     }
 }
 
-void humanTurn(int displayBoard[BOARD_SIZE][BOARD_SIZE], int targetBoard[BOARD_SIZE][BOARD_SIZE])
-{
-    string input;
-    int row, col;
-    cout << "Enter your shot (e.g. A5): ";
-    cin >> input;
+void humanTurn(int displayBoard[BOARD_SIZE][BOARD_SIZE], int targetBoard[BOARD_SIZE][BOARD_SIZE]) {
+    while (true) {
+        string input;
+        cout << "Enter your shot (e.g. A5): ";
+        getline(cin >> ws, input);
 
-    if (input.length() < 2 || !isalpha(input[0]) || !isdigit(input[1]))
-    {
-        cout << "Invalid input. Try again.\n";
-        int temp_row, temp_col;
-        humanTurn(displayBoard, targetBoard);
-        return;
-    }
+        if (input.length() < 2 || !isalpha(input[0]) || !isdigit(input[1])) {
+            cout << "Invalid input. Try again.\n";
+            continue;
+        }
 
-    getCoordinates(input, row, col);
+        input[0] = toupper(input[0]);
+        int row, col;
+        try {
+            getCoordinates(input, row, col);
+        } catch (...) {
+            cout << "Invalid coordinate. Try again.\n";
+            continue;
+        }
 
-    if (row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE)
-    {
-        cout << "Out of bounds. Try again.\n";
-        humanTurn(displayBoard, targetBoard);
-        return;
-    }
+        if (row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE) {
+            cout << "Out of bounds. Try again.\n";
+            continue;
+        }
 
-    if (displayBoard[row][col] != EMPTY)
-    {
-        cout << "Already targeted. Try again.\n";
-        humanTurn(displayBoard, targetBoard);
-        return;
-    }
+        if (displayBoard[row][col] != EMPTY) {
+            cout << "Already targeted. Try again.\n";
+            continue;
+        }
 
-    if (targetBoard[row][col] == SHIP)
-    {
-        cout << "Hit!\n";
-        displayBoard[row][col] = HIT;
-        targetBoard[row][col] = HIT;
-    }
-    else
-    {
-        cout << "Miss.\n";
-        displayBoard[row][col] = MISS;
+        if (targetBoard[row][col] == SHIP) {
+            cout << "Hit!\n";
+            displayBoard[row][col] = HIT;
+            targetBoard[row][col] = HIT;
+        } else {
+            cout << "Miss.\n";
+            displayBoard[row][col] = MISS;
+        }
+        break;
     }
 }
 
-void randomTurn(int targetBoard[BOARD_SIZE][BOARD_SIZE])
-{
+void randomTurn(int targetBoard[BOARD_SIZE][BOARD_SIZE]) {
     int row, col;
     bool fired = false;
-    while (!fired)
-    {
+    while (!fired) {
         row = rand() % BOARD_SIZE;
         col = rand() % BOARD_SIZE;
-        if (targetBoard[row][col] == EMPTY || targetBoard[row][col] == SHIP)
-        {
-            if (targetBoard[row][col] == SHIP)
-            {
+
+        if (row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE)
+            continue;
+
+        if (targetBoard[row][col] == EMPTY || targetBoard[row][col] == SHIP) {
+            if (targetBoard[row][col] == SHIP) {
                 cout << "Enemy hit your ship at " << char('A' + col) << row + 1 << "!\n";
                 targetBoard[row][col] = HIT;
-            }
-            else
-            {
+            } else {
                 cout << "Enemy missed at " << char('A' + col) << row + 1 << ".\n";
                 targetBoard[row][col] = MISS;
             }
