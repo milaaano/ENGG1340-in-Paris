@@ -47,10 +47,17 @@ bool login_or_signup(Users &users, User *&logged_user, Leaderboard &leaderboard,
                 cout << "Login successful" << endl;
                 login_success = true;
 
+                // If Player 1 slot is empty, assign credentials there.
                 if (current_users[0][0] == "" && current_users[0][1] == "")
                 {
                     current_users[0][0] = username;
                     current_users[0][1] = password;
+                }
+                // Else if Player 1 slot is filled AND Player 2 slot is empty, assign credentials to Player 2 slot.
+                else if (!(current_users[0][0] == "" && current_users[0][1] == "") && current_users[1][0] == "" && current_users[1][1] == "")
+                {
+                    current_users[1][0] = username;
+                    current_users[1][1] = password;
                 }
 
                 return true;
@@ -141,6 +148,8 @@ int main_multiplayer(Users &users, Leaderboard &leaderboard)
     initializeBoard(player2Display);
     placePlayerShips(player2Board);
 
+    clearScreen();
+
     // --- Main game loop ---
     while (true)
     {
@@ -152,6 +161,12 @@ int main_multiplayer(Users &users, Leaderboard &leaderboard)
             handleWin(player1, player2, users);
             break;
         }
+
+        // Pause before switching to Player 2
+        cout << "\nPress Enter to continue to " << current_users[1][0] << "'s turn...";
+        string enter_input;
+        getline(cin, enter_input);
+
         clearScreen();
         cout << "\n--- " << current_users[1][0] << " Turn ---\n";
         printBoard(player2Display, false);
@@ -161,6 +176,11 @@ int main_multiplayer(Users &users, Leaderboard &leaderboard)
             handleWin(player2, player1, users);
             break;
         }
+
+        // Pause before switching back to Player 1
+        cout << "\nPress Enter to continue to " << current_users[0][0] << "'s turn...";
+        getline(cin, enter_input);
+
         clearScreen();
     }
 
