@@ -8,7 +8,52 @@ This project is a console-based implementation of the classic Battleship game wi
 - Altynai - AI/Computer player algorithm and main gameplay structure
 - Milan - Authentication, Scoreboard
 
-## Features and Implementation
+## How to play?
+
+### Compilation
+You can compile and run the game using the included Makefile:
+
+```bash
+make start
+```
+
+In case of an eror, run
+
+```bash
+make clean
+```
+
+Then run the first instruction again.
+
+### Options
+From the main menu, select an option (1-5):
+
+![Main Menu Screenshot](main_menu.png)
+
+#### 1. Versus AI:
+   - Select a difficulty level
+   - Place your ships on the board
+   - Take turns with the AI until one player **wins**
+
+#### 2. Scoreboard:
+  - Shows the score of each player that is saved in the database
+  - Each player gets a starting score of 600
+
+#### 3. Multiplayer mode:
+   - Both players need to log in or register
+   - Players take turns placing ships on their boards
+   - Players take turns attacking each other's boards
+   - You see **two boards** at the same time:
+     - Your *target* board (where you are shooting)
+     - Your *own* board (where your opponent is shooting)
+
+> **IMPORTANT:** after placing your ships, you won't see them for the rest of the game. This is done because you are playing with a friend sitting next to you, and if we show your ships, your opponent will see them as well, which we obviously do not want :) 
+
+#### 4. Registration
+  - Register for an account which you will use to login during the multiplayer game mode
+
+
+## Implementation
 
 ### 1. Generation of Random Events
 - **Random Ship Placement**: The AI opponent randomly places ships on the board when starting a new game.
@@ -57,43 +102,3 @@ This project only uses standard C++ libraries, including:
 - `<ctime>` - For seeding random number generation
 - `<algorithm>` - For sorting and other algorithms
 - `<iomanip>` - For output formatting
-
-## Compilation and Execution Instructions
-
-### Compilation
-You can compile the game using the included Makefile:
-
-```bash
-make start
-```
-
-Or compile manually with the following command:
-
-```bash
-g++ -pedantic-errors -std=c++11 main_menu.cpp Multiplayer/multiplayer.cpp DataHandling/users.cpp 1340_Group_Project/battleship.cpp -o main_menu
-```
-
-### Execution
-To run the game after compilation:
-
-```bash
-./main_menu
-```
-
-### Gameplay Instructions
-1. From the main menu, select an option (1-5):
-   - 1: Play against AI (select difficulty level)
-   - 2: View scoreboard
-   - 3: Play multiplayer mode
-   - 4: Register a new user
-   - 5: Exit the game
-
-2. For multiplayer mode:
-   - Both players need to log in or register
-   - Players take turns placing ships on their boards
-   - Players take turns attacking each other's boards
-
-3. For single-player mode:
-   - Select a difficulty level
-   - Place your ships on the board
-   - Take turns with the AI until one player **wins**
