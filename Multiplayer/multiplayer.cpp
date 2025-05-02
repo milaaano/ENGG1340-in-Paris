@@ -128,10 +128,12 @@ int main_multiplayer(Users &users, Leaderboard &leaderboard)
     }
 
     clearScreen();
+    int sunkShipsArrPlayer1[6] = {0};
+    int sunkShipsArrPlayer2[6] = {0};
 
     // ---- Place ships ----
     // Player 1 goes first
-    cout << "Player 1, please place your ships" << endl;
+    cout << current_users[0][0] << ", please place your ships" << endl;
     int player1Board[10][10];
     int player1Display[10][10];
     initializeBoard(player1Board);
@@ -141,47 +143,80 @@ int main_multiplayer(Users &users, Leaderboard &leaderboard)
     clearScreen();
 
     // Player 2
-    cout << "Player 2, please place your ships" << endl;
+    cout << current_users[1][0] << ", please place your ships" << endl;
     int player2Board[10][10];
     int player2Display[10][10];
     initializeBoard(player2Board);
     initializeBoard(player2Display);
     placePlayerShips(player2Board);
 
+    string next_user_turn = current_users[0][0];
+
     clearScreen();
 
     // --- Main game loop ---
     while (true)
     {
-        cout << "\n--- " << current_users[0][0] << " Turn ---\n";
-        printBoard(player1Display, false);
-        humanTurn(player1Display, player2Board);
-        if (isGameOver(player2Board))
+        bool hit = false;
+        // Player 1's turn
+        if (next_user_turn == current_users[0][0])
         {
-            handleWin(player1, player2, users);
-            break;
-        }
-
-        // Pause before switching to Player 2
-        cout << "\nPress Enter to continue to " << current_users[1][0] << "'s turn...";
-        string enter_input;
-        getline(cin, enter_input);
-
-        clearScreen();
-        cout << "\n--- " << current_users[1][0] << " Turn ---\n";
-        printBoard(player2Display, false);
-        humanTurn(player2Display, player1Board);
-        if (isGameOver(player1Board))
-        {
-            handleWin(player2, player1, users);
-            break;
+            clearScreen();
+            cout << "\n------ " << current_users[0][0] << " Turn ------\n";
+            cout << "Target Board:" << endl;
+            printBoard(player2Display, false);
+            cout << "Your Board:" << endl;
+            printBoard(player1Display, false);
+            hit = humanTurn(player1Display, player2Board);
+            if (hit)
+            {
+                updateSunkShips(player2Board, sunkShipsArrPlayer2);
+                if (isGameOver(player2Board))
+                {
+                    handleWin(player1, player2, users);
+                    break;
+                }
+            }
+            else
+            {
+                next_user_turn = current_users[1][0];
+            }
         }
 
         // Pause before switching back to Player 1
-        cout << "\nPress Enter to continue to " << current_users[0][0] << "'s turn...";
-        getline(cin, enter_input);
+        cout << "\nPress Enter to continue to " << next_user_turn << "'s turn...";
+        cin.get();
+
+        // Player 2's turn
+        if (next_user_turn == current_users[1][0])
+        {
+            clearScreen();
+            cout << "\n--- " << current_users[1][0] << " Turn ---\n";
+            cout << "Target Board:" << endl;
+            printBoard(player2Display, false);
+            cout << "Your Board:" << endl;
+            printBoard(player1Display, false);
+            hit = humanTurn(player2Display, player1Board);
+            if (hit)
+            {
+                updateSunkShips(player1Board, sunkShipsArrPlayer1);
+                if (isGameOver(player1Board))
+                {
+                    handleWin(player2, player1, users);
+                    break;
+                }
+            }
+            else
+            {
+                next_user_turn = current_users[0][0];
+            }
+        }
 
         clearScreen();
+
+        // Pause before switching back to Player 1
+        cout << "\nPress Enter to continue to " << next_user_turn << "'s turn...";
+        cin.get();
     }
 
     saveUsers(path, users);

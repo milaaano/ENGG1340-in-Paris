@@ -13,7 +13,7 @@ extern const int MISS;
 extern const int NUM_SHIPS;
 extern const int SHIP_SIZES[];
 
-extern char difficulty_choice;  
+extern char difficulty_choice;
 
 // extern int playerBoard[][10]; // Remove global
 // extern int enemyBoard[][10]; // Remove global
@@ -26,7 +26,7 @@ bool isPlacementValid(int board[][10], int row, int col, int size, int dRow, int
 void placeShip(int board[][10], int row, int col, int size, int dRow, int dCol);
 // void placeEnemyShips(); // Old signature
 void placeRandomShips(int board[][10]); // New signature
-void getCoordinates(const string & input, int &row, int &col);
+void getCoordinates(const string &input, int &row, int &col);
 // void placePlayerShips(); // Old signature
 void placePlayerShips(int playerBoard[][10]); // New signature
 // void playerTurn(); // Old signature
@@ -34,7 +34,10 @@ bool humanTurn(int displayBoard[][10], int targetBoard[][10]); // New signature
 // void enemyTurn(); // Old signature
 void enemyTurn(int targetBoard[][10]); // New signature
 bool isGameOver(int board[][10]);
-int  main_gameplay_loop(char difficulty_choice); 
+int main_gameplay_loop(char difficulty_choice);
+void updateSunkShips(
+    int board[10][10],
+    int sunkShips[6]);
 
 #endif
 
