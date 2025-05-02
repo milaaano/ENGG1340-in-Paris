@@ -243,8 +243,6 @@ int main_multiplayer(Users &users, Leaderboard &leaderboard)
         }
     }
 
-    saveUsers(path, users);
-
     // Update leaderboard
     return 0;
 }
