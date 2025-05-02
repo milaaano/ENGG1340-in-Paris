@@ -1,5 +1,6 @@
 // Include local files
 #include "multiplayer.h"
+#include <limits>
 // Include standard libraries
 
 // g++ -std=c++11 -pedantic-errors Multiplayer/multiplayer.cpp DataHandling/users.cpp "1340 Group Project/battleship.cpp" -o Multiplayer/multiplayer && Multiplayer/multiplayer
@@ -43,8 +44,11 @@ bool login_or_signup(Users &users, User *&logged_user, Leaderboard &leaderboard,
             login_status = loginUser(users, username, password, logged_user);
             if (login_status.first) // Checks if login is successful
             {
-                cout << "Welcome " << logged_user->getName() << "!" << endl; // No arguments in new vers
-                cout << "Login successful" << endl;
+                cout << "=== Welcome " << username << "! ===" << endl; // No arguments in new version
+                cout << "Press Enter to continue..." << endl;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cin.get();
+
                 login_success = true;
 
                 // If Player 1 slot is empty, assign credentials there.
@@ -102,7 +106,7 @@ void handleWin(User *&winner, User *&loser, Users &users)
 int main_multiplayer(Users &users, Leaderboard &leaderboard)
 {
     // ---- Login or sign up ----
-    cout << "Welcome to Battleship Multiplayer!" << endl;
+    cout << "=== Welcome to Battleship Multiplayer! ===" << endl;
 
     string path = "../Data/users.db";
     string current_users[2][2] = {{"", ""}, {"", ""}}; // [0][0] is player 1 username, [0][1] is player 1 password, [1][0] is player 2 username, [1][1] is player 2 password
@@ -117,6 +121,8 @@ int main_multiplayer(Users &users, Leaderboard &leaderboard)
         cout << "Please login or sign up for user 1" << endl;
         player1_logged_in = login_or_signup(users, player1, leaderboard, current_users);
     }
+
+    clearScreen();
 
     // User 2
     User *player2 = nullptr;
@@ -133,19 +139,26 @@ int main_multiplayer(Users &users, Leaderboard &leaderboard)
 
     // ---- Place ships ----
     // Player 1 goes first
-    cout << current_users[0][0] << ", please place your ships" << endl;
-    int player1Board[10][10];
-    int player1Display[10][10];
+    cout << current_users[0][0] << ", please place your ships (press enter to continue)" << endl;
+    int player1Board[10][10];   // P1's ships
+    int player1Display[10][10]; // P1's view of P2's board (hits/misses P1 made)
     initializeBoard(player1Board);
     initializeBoard(player1Display);
-    placePlayerShips(player1Board);
+
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    string input;
+    if (getline(cin, input))
+    {
+        placePlayerShips(player1Board);
+    }
 
     clearScreen();
 
     // Player 2
-    cout << current_users[1][0] << ", please place your ships" << endl;
-    int player2Board[10][10];
-    int player2Display[10][10];
+    cout << current_users[1][0] << ", please place your ships (press enter to continue)" << endl;
+    getline(cin, input);
+    int player2Board[10][10];   // P2's ships
+    int player2Display[10][10]; // P2's view of P1's board (hits/misses P2 made)
     initializeBoard(player2Board);
     initializeBoard(player2Display);
     placePlayerShips(player2Board);
@@ -159,14 +172,14 @@ int main_multiplayer(Users &users, Leaderboard &leaderboard)
     {
         bool hit = false;
         // Player 1's turn
-        if (next_user_turn == current_users[0][0])
+        while (next_user_turn == current_users[0][0])
         {
             clearScreen();
             cout << "\n------ " << current_users[0][0] << " Turn ------\n";
-            cout << "Target Board:" << endl;
-            printBoard(player2Display, false);
-            cout << "Your Board:" << endl;
+            cout << "Target Board (You are shooting " << current_users[1][0] << "'s ships):" << endl;
             printBoard(player1Display, false);
+            cout << "Your Board (You are being shot at by " << current_users[1][0] << "):" << endl;
+            printBoard(player2Display, true);
             hit = humanTurn(player1Display, player2Board);
             if (hit)
             {
@@ -183,19 +196,21 @@ int main_multiplayer(Users &users, Leaderboard &leaderboard)
             }
         }
 
-        // Pause before switching back to Player 1
-        cout << "\nPress Enter to continue to " << next_user_turn << "'s turn...";
-        cin.get();
+        if (!isGameOver(player1Board) && !isGameOver(player2Board))
+        {
+            cout << "\nPress Enter to continue to " << next_user_turn << "'s turn...";
+            cin.get();
+        }
 
         // Player 2's turn
-        if (next_user_turn == current_users[1][0])
+        while (next_user_turn == current_users[1][0])
         {
             clearScreen();
             cout << "\n--- " << current_users[1][0] << " Turn ---\n";
-            cout << "Target Board:" << endl;
+            cout << "Target Board (You are shooting " << current_users[0][0] << "'s ships):" << endl;
             printBoard(player2Display, false);
-            cout << "Your Board:" << endl;
-            printBoard(player1Display, false);
+            cout << "Your Board (You are being shot at by " << current_users[0][0] << "):" << endl;
+            printBoard(player1Display, true);
             hit = humanTurn(player2Display, player1Board);
             if (hit)
             {
@@ -212,11 +227,11 @@ int main_multiplayer(Users &users, Leaderboard &leaderboard)
             }
         }
 
-        clearScreen();
-
-        // Pause before switching back to Player 1
-        cout << "\nPress Enter to continue to " << next_user_turn << "'s turn...";
-        cin.get();
+        if (!isGameOver(player1Board) && !isGameOver(player2Board))
+        {
+            cout << "\nPress Enter to continue to " << next_user_turn << "'s turn...";
+            cin.get();
+        }
     }
 
     saveUsers(path, users);
