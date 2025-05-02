@@ -35,8 +35,9 @@ void printDifficulty() {
   cout << "=== Difficulty selected ===\n"
         "1) Easy\n"
         "2) Normal\n"
-        "3) Hard\n"
-        "4) Exit Versus AI Mode\n\n"
+        "3) Medium\n"
+        "4) Hard\n"
+        "5) Exit Versus AI Mode\n\n"
      << "Press Enter to return to menu...";
 }
 
@@ -68,7 +69,7 @@ int main() {
         if (line.empty()) continue;       // just Enter → redraw
 
         char choice = line[0];
-        string valid_mode_choice = "1234";
+        string valid_mode_choice = "12345";
         char difficulty_choice;
         switch (choice) {
           case '1': 
@@ -86,32 +87,32 @@ int main() {
               case '1':
                 // Easy mode
                   Console::clear();
-                  return main_gameplay_loop();
+                  return main_gameplay_loop('1');
                   break;  
               case '2':
                 // Normal mode
                 Console::clear();
-                return main_gameplay_loop();
+                return main_gameplay_loop('2');
                 break;
               case '3':
                 // Medium mode
                 Console::clear();
-                return main_gameplay_loop();
+                return main_gameplay_loop('3');
                 break;
               case '4':
                 // Hard mode
                 Console::clear();
-                return main_gameplay_loop();
+                return main_gameplay_loop('4');
                 break;
               default:
-                // Invaid choice
+                // Invalid choice or Exit from vs AI mode
                 break;
             }
 
             // Game starts - should be put in switch
             Console::clear();
-            printPlay();
-            getline(cin, line);
+            // printPlay();
+            // getline(cin, line);
             break;
 
           case '2':

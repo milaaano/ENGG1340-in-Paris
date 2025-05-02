@@ -65,13 +65,13 @@ int SHIP_SIZE_Memory=0;
 
 extern char difficulty_choice;
 
-void clearScreen() {
-#ifdef _WIN32
-    system("cls");
-#else
-    system("clear");
-#endif
-}
+// void clearScreen() {
+// #ifdef _WIN32
+//     system("cls");
+// #else
+//     system("clear");
+// #endif
+// }
 
 void initializeBoard(
     int board[BOARD_SIZE][BOARD_SIZE]
@@ -1198,7 +1198,7 @@ bool isGameOver(
 
 
 
-int main_gameplay_loop() {
+int main_gameplay_loop(char difficulty_choice) {
     srand(static_cast<unsigned>(time(nullptr)));
 
     int playerBoard[BOARD_SIZE][BOARD_SIZE];
@@ -1252,6 +1252,6 @@ int main_gameplay_loop() {
     return 0;
 }
 
-int main() {
-    return main_gameplay_loop();
-}
+// int main() {
+//     return main_gameplay_loop();
+// }
