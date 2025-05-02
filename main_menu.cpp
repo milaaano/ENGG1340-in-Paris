@@ -1,3 +1,4 @@
+
 // battleships_frontpage_smooth_noecho.cpp
 #include <iostream>
 #include "main_menu.h"
@@ -34,10 +35,9 @@ void printMenu() {
 void printDifficulty() {
   cout << "=== Difficulty selected ===\n"
         "1) Easy\n"
-        "2) Normal\n"
-        "3) Medium\n"
-        "4) Hard\n"
-        "5) Exit Versus AI Mode\n\n"
+        "2) Medium\n"
+        "3) Hard\n"
+        "4) Exit Versus AI Mode\n\n"
      << "Press Enter to return to menu...";
 }
 
@@ -66,11 +66,21 @@ int main() {
         cout << "Select an option (1 to 5), or press Enter to refresh: ";
 
         if (!getline(cin, line)) break;  // EOF
-        if (line.empty()) continue;       // just Enter → redraw
+
+        string valid_mode_choice = "12345";
+        while (line.empty() || valid_mode_choice.find(line[0]) == string::npos) {
+          Console::clear();
+          printHeader();
+          printMenu();
+          cout << "Invalid Choice!\n";
+          getline(cin, line);
+        }
+        // if (line.empty()) continue;       // just Enter → redraw
 
         char choice = line[0];
-        string valid_mode_choice = "12345";
+        
         char difficulty_choice;
+        
         switch (choice) {
           case '1': 
             // Chose difficulty
@@ -78,10 +88,6 @@ int main() {
             printDifficulty();
 
             getline(cin, line);
-            while (line.empty() || valid_mode_choice.find(line[0]) == string::npos) {
-              cout << "Invalid Choice!\n";
-              getline(cin, line);
-            }
             difficulty_choice = line[0];
             switch (difficulty_choice) {
               case '1':
@@ -90,16 +96,11 @@ int main() {
                   return main_gameplay_loop('1');
                   break;  
               case '2':
-                // Normal mode
-                Console::clear();
-                return main_gameplay_loop('2');
-                break;
-              case '3':
                 // Medium mode
                 Console::clear();
                 return main_gameplay_loop('3');
                 break;
-              case '4':
+              case '3':
                 // Hard mode
                 Console::clear();
                 return main_gameplay_loop('4');
