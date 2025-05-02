@@ -97,10 +97,10 @@ bool login_or_signup(Users &users, User *&logged_user, Leaderboard &leaderboard,
 }
 
 // Handles player 1 win and updates leaderboard. Takes in pointer to winner and users map.
-void handleWin(User *&winner, User *&loser, Users &users)
+void handleWin(string winner, string loser, Users &users)
 {
-    cout << winner->getName() << " wins!" << endl;
-    updateRating(users[winner->getName()].score, users[loser->getName()].score, 1);
+    cout << winner << " wins!" << endl;
+    updateRating(users[winner].score, users[loser].score, 1);
 }
 
 int main_multiplayer(Users &users, Leaderboard &leaderboard)
@@ -179,21 +179,28 @@ int main_multiplayer(Users &users, Leaderboard &leaderboard)
             cout << "Target Board (You are shooting " << current_users[1][0] << "'s ships):" << endl;
             printBoard(player1Display, false);
             cout << "Your Board (You are being shot at by " << current_users[1][0] << "):" << endl;
-            printBoard(player2Display, true);
+            printBoard(player1Board, true);
             hit = humanTurn(player1Display, player2Board);
             if (hit)
             {
                 updateSunkShips(player2Board, sunkShipsArrPlayer2);
                 if (isGameOver(player2Board))
                 {
-                    handleWin(player1, player2, users);
-                    break;
+                    handleWin(current_users[0][0], current_users[1][0], users);
+                    cout << "\nPress Enter to continue..." << endl;
+                    cin.get();
+                    return 0;
                 }
             }
             else
             {
                 next_user_turn = current_users[1][0];
             }
+        }
+
+        if (isGameOver(player1Board) || isGameOver(player2Board))
+        {
+            break;
         }
 
         if (!isGameOver(player1Board) && !isGameOver(player2Board))
@@ -210,15 +217,17 @@ int main_multiplayer(Users &users, Leaderboard &leaderboard)
             cout << "Target Board (You are shooting " << current_users[0][0] << "'s ships):" << endl;
             printBoard(player2Display, false);
             cout << "Your Board (You are being shot at by " << current_users[0][0] << "):" << endl;
-            printBoard(player1Display, true);
+            printBoard(player2Board, true);
             hit = humanTurn(player2Display, player1Board);
             if (hit)
             {
                 updateSunkShips(player1Board, sunkShipsArrPlayer1);
                 if (isGameOver(player1Board))
                 {
-                    handleWin(player2, player1, users);
-                    break;
+                    handleWin(current_users[1][0], current_users[0][0], users);
+                    cout << "\nPress Enter to continue..." << endl;
+                    cin.get();
+                    return 0;
                 }
             }
             else

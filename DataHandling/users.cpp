@@ -8,7 +8,8 @@
 
 bool leaderboardDirtyBit = false;
 
-string makeSalt() {
+string makeSalt()
+{
     int ln = 8;
     random_device rd;
     mt19937 gen(rd());
@@ -63,7 +64,8 @@ void Encrypt(string &data, const string &key)
 {
     int l = key.length();
     int n = data.length();
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++)
+    {
         data[i] ^= key[i % l];
     }
 }
@@ -72,7 +74,8 @@ Users buildUsers(const string &path)
 {
     ifstream ifs;
     ifs.open(path.c_str());
-    if (ifs.fail()) {
+    if (ifs.fail())
+    {
         cout << "Error in file opening\n";
         exit(1);
     }
@@ -82,7 +85,8 @@ Users buildUsers(const string &path)
     string name;
     ll password_hash;
     int score;
-    while (getline(ifs, line)) {
+    while (getline(ifs, line))
+    {
 
         for (char &ch : line)
         {
@@ -104,16 +108,20 @@ Users buildUsers(const string &path)
     return users;
 }
 
-void saveUsers(const string & path, const Users & users) {
+void saveUsers(const string &path, const Users &users)
+{
     string tmp = path;
     ofstream ofs;
     ofs.open(tmp.c_str());
-    if (ofs.fail()) {
-        cout << "Can't open the tmp file\n" << '\n';
+    if (ofs.fail())
+    {
+        cout << "Can't open the tmp file\n"
+             << '\n';
         exit(1);
     }
 
-    for (const auto & pair : users) {
+    for (const auto &pair : users)
+    {
         const User &u = pair.second;
         string line = u.getName() + "," + to_string(u.getPasswordHash()) + "," + to_string(u.score);
         ofs << line << '\n';
@@ -121,15 +129,19 @@ void saveUsers(const string & path, const Users & users) {
     ofs.close();
 }
 
-pair<bool, string> registerUser(Users & users, const string & username, const string & password, Leaderboard & leaderboard) {
+pair<bool, string> registerUser(Users &users, const string &username, const string &password, Leaderboard &leaderboard)
+{
     pair<bool, string> response = {true, "Successful registration!\n"};
-    if (users.find(username) != users.end()) {
+    if (users.find(username) != users.end())
+    {
         response.first = false;
         response.second = "User " + username + " already exists!\n";
         return response;
     }
-    for (int i = 0; i < username.length(); i++) {
-        if (username[i] > 127 || username[i] < 1) {
+    for (int i = 0; i < username.length(); i++)
+    {
+        if (username[i] > 127 || username[i] < 1)
+        {
             response.first = false;
             response.second = "Invalid password!\n";
             return response;
@@ -137,20 +149,24 @@ pair<bool, string> registerUser(Users & users, const string & username, const st
     }
     users[username] = User(username, password, start_rating);
     leaderboardDirtyBit = true;
-    leaderboard.push_back( &(users[username]));
+    leaderboard.push_back(&(users[username]));
     clearScreen();
     return response;
 }
 
-pair<bool, string> registerUser(Users & users, const string & username, const string & password, Leaderboard & leaderboard, User * & logged_user) {
+pair<bool, string> registerUser(Users &users, const string &username, const string &password, Leaderboard &leaderboard, User *&logged_user)
+{
     pair<bool, string> response = {true, "Successful registration!\n"};
-    if (users.find(username) != users.end()) {
+    if (users.find(username) != users.end())
+    {
         response.first = false;
         response.second = "User " + username + " already exists!\n";
         return response;
     }
-    for (int i = 0; i < username.length(); i++) {
-        if (username[i] > 127 || username[i] < 1) {
+    for (int i = 0; i < username.length(); i++)
+    {
+        if (username[i] > 127 || username[i] < 1)
+        {
             response.first = false;
             response.second = "Invalid password!\n";
             return response;
@@ -159,18 +175,21 @@ pair<bool, string> registerUser(Users & users, const string & username, const st
     users[username] = User(username, password, start_rating);
     logged_user = &users[username];
     leaderboardDirtyBit = true;
-    leaderboard.push_back( &(users[username]));
+    leaderboard.push_back(&(users[username]));
     clearScreen();
     return response;
 }
 
-pair<bool, string> loginUser(const Users & users, const string & username, const string & password, User * & logged_user) {
+pair<bool, string> loginUser(const Users &users, const string &username, const string &password, User *&logged_user)
+{
     auto it = users.find(username);
-    if (it == users.end()) {
+    if (it == users.end())
+    {
         return {false, "No users with username" + username + "!\n"};
     }
     ll attempt = makePasswordHash(password);
-    if (attempt != it->second.getPasswordHash()) {
+    if (attempt != it->second.getPasswordHash())
+    {
         return {false, "Wrong password!\n"};
     }
     User u = it->second;
@@ -179,53 +198,62 @@ pair<bool, string> loginUser(const Users & users, const string & username, const
     return {true, "Successfull login!\n"};
 }
 
-void buildLeaderboard(Users & users, Leaderboard & leaderboard) {
-    for (auto & pair : users) {
+void buildLeaderboard(Users &users, Leaderboard &leaderboard)
+{
+    for (auto &pair : users)
+    {
         leaderboard.push_back(&(pair.second));
     }
     leaderboardDirtyBit = true;
 }
 
-void printLeaderboard(Leaderboard & leaderboard) {
-    if (leaderboard.empty()) {
+void printLeaderboard(Leaderboard &leaderboard)
+{
+    if (leaderboard.empty())
+    {
         cout << "No registered users!\n";
         return;
     }
-    if (leaderboardDirtyBit) {
-        sort(leaderboard.begin(), leaderboard.end(), [](User * a, User * b) {
-            return !(*a < *b);
-        });
+    if (leaderboardDirtyBit)
+    {
+        sort(leaderboard.begin(), leaderboard.end(), [](User *a, User *b)
+             { return !(*a < *b); });
     }
     cout << setfill('-') << setw(17) << right << "Leaderboard" << setw(7) << '\n';
-    cout <<setfill(' ');
-    for (int i = 0; i < leaderboard.size(); i++) {
+    cout << setfill(' ');
+    for (int i = 0; i < leaderboard.size(); i++)
+    {
         (leaderboard[i]->printUser(i + 1));
     }
 }
 
-double surprise_boost(double gap) {
+double surprise_boost(double gap)
+{
     return 1.0 + (gap * gap) / (D * D);
 }
 
-void updateRating(int & a, int & b, int outcome) {
+void updateRating(int &a, int &b, int outcome)
+{
     double E_a = 1.0 / (1.0 + pow(10.0, (b - a) / D));
 
     double gap = b - a;
     double boost = surprise_boost(gap);
     double d_a = C * (outcome - E_a) * boost;
 
-    if (outcome == 1) {
+    if (outcome == 1)
+    {
         a = min({round(a + d_a), round(a * maxgain)});
         b = max({round(b - d_a), round(b * maxlost)});
-    } else {
+    }
+    else
+    {
         a = max({round(a + d_a), round(a * maxlost)});
         b = min({round(b - d_a), round(b * maxgain)});
     }
 }
 
-
-
-void clearScreen() {
+void clearScreen()
+{
     system("clear");
 }
 
@@ -244,7 +272,7 @@ void clearScreen() {
 //     //     registerUser(users, username, password, leaderboard);
 //     // }
 //     // printLeaderboard(leaderboard);
-    
+
 //     // saveUsers("/Users/macbook/ProgrammingProjects/ENGG1340-in-Paris/Data/users.db", users);
 //     // Users hello = buildUsers("/Users/macbook/ProgrammingProjects/ENGG1340-in-Paris/Data/users.db");
 //     // for (const auto & el : hello) {
@@ -259,7 +287,7 @@ void clearScreen() {
 //     //     if (res.first) {
 //     //         ptr->score = i + 100;
 //     //     }
-        
+
 //     // }
 
 //     // printLeaderboard(leaderboard);
