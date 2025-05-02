@@ -904,9 +904,34 @@ int main_gameplay_loop(char difficulty_choice) {
                     break;
                 }
             }
+            // Just to double check
+            bool over=true;
+            for (int i = 0; i < 5; i++) {
+                if (humanSunk[i] == 0) {
+                   over=false;
+                    break;
+                }
+            }
+            if (over){
+                cout << "You win!\n";
+                break;
+            }
+            
         }
         else {
             hit = enemyTurn(playerBoard, difficulty_choice, enemySunk);
+            // Just to double check
+            bool over=true;
+            for (int i = 0; i < 5; i++) {
+                if (alive_ships[i] != 0) {
+                   over=false;
+                    break;
+                }
+            }
+            if (over){
+                cout << "Enemy wins!\n";
+                break;
+            }
             if (hit) {
                 updateSunkShips(playerBoard, enemySunk);
                 if (isGameOver(playerBoard)) {
@@ -915,6 +940,8 @@ int main_gameplay_loop(char difficulty_choice) {
                 }
             }
         }
+        
+        
         //to make the output
         cout<<"Press Enter to Update board.\n";
         cin.get();
