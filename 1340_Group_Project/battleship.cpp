@@ -695,7 +695,7 @@ bool enemyTurn(
             }
         }
     }
-    else if (diff == '2') {
+        else if (diff == '2') {
         if (!enemyAttacks.empty()) {
             AttackRecord &rec = enemyAttacks.back();
             for (int d = 0; d < 4; ++d) {
@@ -742,25 +742,45 @@ bool enemyTurn(
                 break;
             }
         }
-        static int lastIdx = 0;
-        int totalCells = BOARD_SIZE * BOARD_SIZE;
-        for (int attempt = 0; attempt < totalCells; ++attempt) {
-            int idx = (lastIdx + attempt * spacing) % totalCells;
-            int r = idx / BOARD_SIZE;
-            int c = idx % BOARD_SIZE;
-            if (board[r][c] == EMPTY || board[r][c] == SHIP) {
+        for (int r = 0; r < BOARD_SIZE; ++r) {  
+            for (int c = 0; c < BOARD_SIZE; ++c) {
+         
+                if ((r + c) % spacing != 0) 
+                    continue;
+        
+        
+                if (board[r][c] != EMPTY && board[r][c] != SHIP) 
+                    continue;
+        
+        
+                bool adjHit = false;
+                for (int dr = -1; dr <= 1 && !adjHit; ++dr) {
+                    for (int dc = -1; dc <= 1; ++dc) {
+                        if (dr == 0 && dc == 0) 
+                            continue;
+                        int nr = r + dr;
+                        int nc = c + dc;
+                        if (nr >= 0 && nr < BOARD_SIZE
+                         && nc >= 0 && nc < BOARD_SIZE
+                         && board[nr][nc] == HIT) {
+                            adjHit = true;
+                            break;
+                        }
+                    }
+                }
+                if (adjHit) 
+                    continue;
+        
+        
                 if (board[r][c] == SHIP) {
                     cout << "Enemy hit at " << char('A' + c) << (r + 1) << "!\n";
                     board[r][c] = HIT;
                     enemyAttacks.emplace_back(r, c);
-                    lastIdx = idx;
-                    //to make the output
-                continue;
                     return true;
-                } else {
+                }
+                else {
                     cout << "Enemy missed at " << char('A' + c) << (r + 1) << ".\n";
                     board[r][c] = MISS;
-                    lastIdx = idx;
                     return false;
                 }
             }
