@@ -726,7 +726,6 @@ bool enemyTurn(
                 } else {
                     cout << "Enemy missed at " << char('A' + nc) << (nr + 1) << ".\n";
                     board[nr][nc] = MISS;
-                    return false;
                 }
             }
             enemyAttacks.clear();
