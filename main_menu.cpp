@@ -98,12 +98,12 @@ int main() {
               case '2':
                 // Medium mode
                 Console::clear();
-                return main_gameplay_loop('3');
+                return main_gameplay_loop('2');
                 break;
               case '3':
                 // Hard mode
                 Console::clear();
-                return main_gameplay_loop('4');
+                return main_gameplay_loop('3');
                 break;
               default:
                 // Invalid choice or Exit from vs AI mode
