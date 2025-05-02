@@ -27,7 +27,7 @@ void printMenu() {
     << "1. Versus AI\n"
     << "2. Scoreboard\n"
     << "3. Multiplayer\n"
-    << "4. Registeration\n"
+    << "4. Registration\n"
     << "5. Exit\n\n";
 }
 
@@ -61,7 +61,7 @@ int main() {
     string line;
     while (running) {
         Console::clear();
-
+        printHeader();
         printMenu();
         cout << "Select an option (1 to 5), or press Enter to refresh: ";
 
