@@ -662,7 +662,7 @@ void enemyTurn_Pro(int playerBoard[BOARD_SIZE][BOARD_SIZE]) {
 bool enemyTurn(
     int board[BOARD_SIZE][BOARD_SIZE],
     char diff,
-    int sunkShips[6]
+    int enemySunk[6]
 ) {
     if (diff == '1') {
         bool fired = false;
@@ -737,7 +737,7 @@ bool enemyTurn(
             for (int i = 0; i < NUM_SHIPS; ++i) {
                 if (SHIP_SIZES[i] == s) total++;
             }
-            if (sunkShips[s] < total) {
+            if (enemySunk[s] < total) {
                 spacing = s;
                 break;
             }
@@ -791,10 +791,6 @@ bool enemyTurn(
     }
     return false;
 }
-
-// Yerassyl
-
-// Yerassyl
 
 void updateSunkShips(
     int board[BOARD_SIZE][BOARD_SIZE],
@@ -879,7 +875,8 @@ int main_gameplay_loop(char difficulty_choice) {
     int playerBoard[BOARD_SIZE][BOARD_SIZE];
     int enemyBoard [BOARD_SIZE][BOARD_SIZE];
     int displayBoard[BOARD_SIZE][BOARD_SIZE];
-    int sunkShipsArr[6] = {0};
+    int humanSunk[6] = {0};
+    int enemySunk[6] = {0};
 
     initializeBoard(playerBoard);
     initializeBoard(enemyBoard);
@@ -901,7 +898,7 @@ int main_gameplay_loop(char difficulty_choice) {
         if (playerTurn) {
             hit = humanTurn(displayBoard, enemyBoard);
             if (hit) {
-                updateSunkShips(enemyBoard, sunkShipsArr);
+                updateSunkShips(enemyBoard, humanSunk);
                 if (isGameOver(enemyBoard)) {
                     cout << "You win!\n";
                     break;
@@ -909,9 +906,9 @@ int main_gameplay_loop(char difficulty_choice) {
             }
         }
         else {
-            hit = enemyTurn(playerBoard, difficulty_choice, sunkShipsArr);
+            hit = enemyTurn(playerBoard, difficulty_choice, enemySunk);
             if (hit) {
-                updateSunkShips(playerBoard, sunkShipsArr);
+                updateSunkShips(playerBoard, enemySunk);
                 if (isGameOver(playerBoard)) {
                     cout << "Enemy wins!\n";
                     break;
