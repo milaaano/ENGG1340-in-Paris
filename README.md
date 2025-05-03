@@ -5,7 +5,7 @@ This project is a console-based implementation of the classic **Battleship game*
 - **Ilyas Toleutay** - Interface Design (Main menu and animations)
 - **Aleksandr Vaskin** - Multiplayer implementation
 - **Yerassyl Taisarinov** - AI/Computer player algorithm and gameplay mechanics
-- **Altynai Akayeva** - AI/Computer player algorithm and main gameplay structure
+- **Altynay Akayeva** - AI/Computer player algorithm and main gameplay structure
 - **Milan Giliazetdino**v - Authentication, Scoreboard
 
 ## How to Play ❓
