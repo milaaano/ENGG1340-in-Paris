@@ -25,7 +25,7 @@ make clean
 make start
 ```
 
-> **Note:** Follow the on-screen instructions carefully. You may be asked to type keywords, press `Enter`, or use a specific input format.
+> **Note:** During the fame, follow the on-screen instructions carefully. You may be asked to type keywords, press `Enter`, or use a specific input format.
 
 ---
 
