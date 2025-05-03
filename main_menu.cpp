@@ -146,6 +146,8 @@ int main() {
             getline(cin, password);
             pair<bool, string> status = registerUser(users, username, password, leaderboard);
             cout << status.second;
+            cout << "Press Enter to return to menu...";
+            getline(cin, line);
             break;
           }
           case '5':

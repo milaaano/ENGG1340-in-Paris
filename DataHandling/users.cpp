@@ -138,6 +138,16 @@ pair<bool, string> registerUser(Users &users, const string &username, const stri
         response.second = "User " + username + " already exists!\n";
         return response;
     }
+    if(username.length() == 0) {
+        response.first = false;
+        response.second = "Invalid username!\n";
+        return response;
+    }
+    if(password.length() == 0) {
+        response.first = false;
+        response.second = "Invalid password!\n";
+        return response;
+    }
     for (int i = 0; i < username.length(); i++)
     {
         if (username[i] > 127 || username[i] < 1)
@@ -161,6 +171,16 @@ pair<bool, string> registerUser(Users &users, const string &username, const stri
     {
         response.first = false;
         response.second = "User " + username + " already exists!\n";
+        return response;
+    }
+    if(username.length() == 0) {
+        response.first = false;
+        response.second = "Invalid username!\n";
+        return response;
+    }
+    if(password.length() == 0) {
+        response.first = false;
+        response.second = "Invalid password!\n";
         return response;
     }
     for (int i = 0; i < username.length(); i++)
