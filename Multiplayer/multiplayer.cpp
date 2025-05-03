@@ -108,6 +108,15 @@ int main_multiplayer(Users &users, Leaderboard &leaderboard)
     // ---- Login or sign up ----
     cout << "=== Welcome to Battleship Multiplayer! ===" << endl;
 
+    cout << "Press Enter to continue or type 'exit' to go back to main menu" << endl;
+    string continue_multiplayer;
+    getline(cin, continue_multiplayer);
+    if (continue_multiplayer == "exit" || continue_multiplayer == "Exit")
+    {
+        return 0;
+    }
+    clearScreen();
+
     string path = "../Data/users.db";
     string current_users[2][2] = {{"", ""}, {"", ""}}; // [0][0] is player 1 username, [0][1] is player 1 password, [1][0] is player 2 username, [1][1] is player 2 password
     bool player1_logged_in = false;
