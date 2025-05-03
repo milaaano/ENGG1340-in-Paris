@@ -1,59 +1,68 @@
-# ENGG1340 - Battleship Game
-This project is a console-based implementation of the classic Battleship game with multiple features, created for HKU's ENGG1340. Players can play against an AI opponent with different difficulty levels, challenge another player in local multiplayer mode, track scores on a leaderboard, and register as users to save their progress. The game follows standard Battleship rules where players place ships on a grid and take turns guessing coordinates to sink their opponent's ships. The first player to sink all of their opponent's ships wins.
+# ENGG1340 - Battleship Game 🏴‍☠️
+This project is a console-based implementation of the classic **Battleship game** with multiple features, created for HKU's ENGG1340. Players can play against an AI opponent with different difficulty levels, challenge another player in local multiplayer mode, track scores on a leaderboard, and register as users to save their progress. The game follows standard Battleship rules where players place ships on a grid and take turns guessing coordinates to sink their opponent's ships. The first player to sink all of their opponent's ships wins.
 
-## Team Members
-- Ilyas - Interface Design (Main menu and animations)
-- Aleksandr Vaskin - Multiplayer implementation
-- Yerassyl Taisarinov - AI/Computer player algorithm and gameplay mechanics
-- Altynai - AI/Computer player algorithm and main gameplay structure
-- Milan - Authentication, Scoreboard
+## Team Members 🧑‍💻
+- **Ilyas Toleutay** - Interface Design (Main menu and animations)
+- **Aleksandr Vaskin** - Multiplayer implementation
+- **Yerassyl Taisarinov** - AI/Computer player algorithm and gameplay mechanics
+- **Altynai Akayeva** - AI/Computer player algorithm and main gameplay structure
+- **Milan Giliazetdino**v - Authentication, Scoreboard
 
-## How to play?
+## How to Play ❓
 
 ### Compilation
-You can compile and run the game using the included Makefile:
+
+Use the included `Makefile` to compile and run the game:
 
 ```bash
 make start
 ```
 
-In case of an eror, run
+If you encounter an error, clean up and try again:
 
 ```bash
 make clean
+make start
 ```
 
-Then run the first instruction again.
+> **Note:** Follow the on-screen instructions carefully. You may be asked to type keywords, press `Enter`, or use a specific input format.
 
-### Options
-From the main menu, select an option (1-5):
+---
+
+### Main Menu Options
+
+When you start the game, you'll see a main menu like this:
 
 ![Main Menu Screenshot](main_menu.png)
 
-#### 1. Versus AI:
-   - Select a difficulty level
-   - Place your ships on the board
-   - Take turns with the AI until one player **wins**
+Choose an option (1–5):
 
-#### 2. Scoreboard:
-  - Shows the score of each player that is saved in the database
-  - Each player gets a starting score of 600
+#### 1. Versus AI
+- Select your desired difficulty level.
+- Place your ships on the board.
+- Take turns with the AI until one player **wins**.
 
-#### 3. Multiplayer mode:
-   - Both players need to log in or register
-   - Players take turns placing ships on their boards
-   - Players take turns attacking each other's boards
-   - You see **two boards** at the same time:
-     - Your *target* board (where you are shooting)
-     - Your *own* board (where your opponent is shooting)
+#### 2. Scoreboard
+- View the scores of all players saved in the database.
+- Every player starts with a score of **600**.
 
-> **IMPORTANT:** after placing your ships, you won't see them for the rest of the game. This is done because you are playing with a friend sitting next to you, and if we show your ships, your opponent will see them as well, which we obviously do not want :) 
+#### 3. Multiplayer Mode
+- Two players are **required** to play.
+- Players must register/login into an account to play.
+- Each player places their ships on their own board.
+- Players take turns attacking each other's boards.
+- During gameplay, **two boards** are displayed:
+  - **Your target board:** where you shoot.
+  - **Your own board:** where your opponent shoots.
+- Remember to exit the game by returning to the main menu and picking Option 5 in order for the scores to be saved into the databa.se
+
+> **Important:** Once ships are placed, you won't see them again during the game to prevent your opponent (sitting nearby) from seeing your ship locations.
 
 #### 4. Registration
-  - Register for an account which you will use to login during the multiplayer game mode
+- Register for an account to use in multiplayer mode.
 
 
-## Implementation
+## Code Requirements 💻
 
 ### 1. Generation of Random Events
 - **Random Ship Placement**: The AI opponent randomly places ships on the board when starting a new game.
@@ -87,11 +96,10 @@ The project is organized into multiple directories and files:
 ### Multiple Difficulty Levels
 The game features four difficulty levels for the AI opponent:
 1. **Easy**: Random targeting with no strategy
-2. **Normal**: Basic targeting with simple logic
 3. **Medium**: Advanced targeting with ship-hunting algorithm
 4. **Hard**: Sophisticated algorithm that uses probability maps to predict ship locations
 
-## C/C++ Libraries
+### C/C++ Libraries
 This project only uses standard C++ libraries, including:
 - `<iostream>` - For input/output operations
 - `<string>` - For string manipulation
@@ -102,3 +110,27 @@ This project only uses standard C++ libraries, including:
 - `<ctime>` - For seeding random number generation
 - `<algorithm>` - For sorting and other algorithms
 - `<iomanip>` - For output formatting
+- `<limits>` - For 
+
+## Innovative Features 🌊
+
+We included several unique features to modernise the classic game of Battleships 
+
+### Sophisticated AI Opponent 🕵️
+> Various AI difficulty levels with differing approaches
+
+The AI in our program operates at multiple difficulty levels:
+-   **Easy:** Employs random targeting for a casual experience.
+-   **Medium:** Utilizes a targeted hunting strategy, remembering hits and strategically spacing shots to locate ships efficiently.
+-   **Hard:** The AI calculates probability maps based on remaining ship sizes and board state, identifying the most likely locations for your hidden ships. Once a hit is confirmed, it switches to a methodical hunt-and-target mode, systematically destroying the located ship before resuming probabilistic targeting.
+
+### Persistent User Profiles & Leaderboard 📊
+> Player profiles, highscore rankings and secure data storage.
+-   **User Registration & Login:** Create a unique player profile or log in to an existing one. User credentials (username, hashed password) and scores are securely stored.
+-   **Secure Data Handling:** Passwords are hashed using a polynomial rolling hash algorithm before storage, enhancing security.
+-   **Persistent Scores & Rankings:** Player scores are saved between sessions and contribute to a dynamic leaderboard, tracking player rankings based on performance. Multiplayer wins and losses influence scores using a rating update system inspired by competitive ranking models.
+
+### Local Multiplayer Experience 🧑‍🤝‍🧑
+> Engage in local multiplayer battles against a friend.
+-   **Managed Input Flow:** The game carefully manages the turn-based flow. Screens are cleared between sensitive actions like ship placement and turns, requiring player confirmation (`Press Enter to continue...`) to proceed. This ensures that opponents cannot accidentally see each other's ship layouts or target boards during gameplay transitions.
+-   **Dual Board Display:** During a turn, each player sees two boards: their *Target Board* (displaying their shots on the opponent's grid) and their *Own Board* (showing their ship placements and where the opponent has fired).
