@@ -8,28 +8,28 @@
 #include "battleship.h"
 using namespace std;
 
-enum Direction { LEFT = 0, UP, RIGHT, DOWN };
+enum Direction { LEFT = 0, UP, RIGHT, DOWN }; // Directions used for hunting adjacent cells after a hit: LEFT = 0, UP = 1, RIGHT = 2, DOWN = 3
 
-struct AttackRecord {
+struct AttackRecord { // AttackRecord tracks an enemy hit at (row, col) and which directions still need checking
     int row;
     int col;
     bool dir[4];
 
-    AttackRecord(int r, int c) : row(r), col(c) {
+    AttackRecord(int r, int c) : row(r), col(c) { // Initialize a new record at (r,c) and mark all directions unattempted
         for (int i = 0; i < 4; ++i) dir[i] = true;
     }
 };
 
-static vector<AttackRecord> enemyAttacks;
+static vector<AttackRecord> enemyAttacks; // pending pursues, which each record represents a hit cell the enemy will continue hunting
 
 const int BOARD_SIZE = 10;
-const int EMPTY = 0;
-const int SHIP = 1;
-const int HIT = 2;
-const int MISS = 3;
+const int EMPTY = 0; // no ship, not shot
+const int SHIP = 1; // ship, not shot
+const int HIT = 2; // ship, shot
+const int MISS = 3; // no ship, shot
 
-const int NUM_SHIPS  = 5;
-const int SHIP_SIZES[NUM_SHIPS] = {5, 4, 3, 3, 2};
+const int NUM_SHIPS  = 5; // total number of ships on board
+const int SHIP_SIZES[NUM_SHIPS] = {5, 4, 3, 3, 2}; // lengths of the ships
 
 // ANSI color codes
 constexpr char const* CYAN   = "\033[36m";
@@ -43,11 +43,11 @@ constexpr char const* MAGENTA = "\033[35m";
 
 // YERAYERA
 
-int playerBoard[BOARD_SIZE][BOARD_SIZE];
+int playerBoard[BOARD_SIZE][BOARD_SIZE]; //Player's board: EMPTY, SHIP, HIT, or MISS in each cell are visible
 
 
-int enemyBoard[BOARD_SIZE][BOARD_SIZE];
-int enemyDisplay[BOARD_SIZE][BOARD_SIZE];
+int enemyBoard[BOARD_SIZE][BOARD_SIZE]; // Enemy's ship layout
+int enemyDisplay[BOARD_SIZE][BOARD_SIZE]; // Player’s view of enemy's hidden ship layout
 
 //Probability boards for all the enemy ships
 int enemyProbabilityBoard_5[BOARD_SIZE][BOARD_SIZE];
@@ -73,7 +73,7 @@ int direction=0;
 int end_of_a_ship=0;
 int SHIP_SIZE_Memory=0;
 
-extern char difficulty_choice;
+extern char difficulty_choice; // Holds difficulty selected selected in main_menu.cp
 
 // void clearScreen() {
 // #ifdef _WIN32
@@ -83,7 +83,7 @@ extern char difficulty_choice;
 // #endif
 // }
 
-void initializeBoard(
+void initializeBoard( //Clears [BOARD_SIZE×[BOARD_SIZE grid by setting every cell to EMPTY
     int board[BOARD_SIZE][BOARD_SIZE]
 ) {
     for (int i = 0; i < BOARD_SIZE; ++i) {
@@ -93,7 +93,7 @@ void initializeBoard(
     }
 }
 
-void printBoard(
+void printBoard( // Displays the grid with A–J (columns) and 1–10 (rows) labels in YELLOW color, showing unknown cells (.) in YELLOW color, hits (x) in RED color, misses (o) in BLUE color, and S for ships if showShips is true in GREEn color.
     int board[BOARD_SIZE][BOARD_SIZE],
     bool showShips
 ) {
@@ -128,7 +128,7 @@ void printBoard(
     }
 }
 
-void getCoordinates(
+void getCoordinates( // Converts an input string like "A5" into zero‑based row and col indices
     const string &input,
     int &row,
     int &col
@@ -140,7 +140,7 @@ void getCoordinates(
     row = stoi(numberPart) - 1;
 }
 
-bool isPlacementValid(
+bool isPlacementValid( // Returns true if a ship of length size fits at starting point (row,col) along horizontal direction(dCol = 1) or vertical direction (dRow = 1) without overlap with other ships, adjacency to other ships and not out of board bound
     int board[BOARD_SIZE][BOARD_SIZE],
     int row,
     int col,
@@ -178,7 +178,7 @@ bool isPlacementValid(
     return true;
 }
 
-void placeShip(
+void placeShip( // Places size consecutive cells as SHIP starting at (row,col) position in horizontl direction if dCol is 1 or in vertical direction if dRow is 1 on board
     int board[BOARD_SIZE][BOARD_SIZE],
     int row,
     int col,
@@ -198,7 +198,7 @@ void placeShip(
     }
 }
 
-void placeRandomShips(
+void placeRandomShips( // For each ship size, picks random positions and orientations until isPlacementValid succeeds, then places the ship calling placeShip function
     int board[BOARD_SIZE][BOARD_SIZE]
 ) {
     for (int index = 0; index < NUM_SHIPS; ++index) {
@@ -220,7 +220,7 @@ void placeRandomShips(
     }
 }
 
-void placePlayerShips(
+void placePlayerShips( // Asks user to place each ship by entering a start coordinate (e.g. "A5") and direction (e.g. "H" or "V"), places it calling placeShip function if isPlacementValid succeeds
     int board[BOARD_SIZE][BOARD_SIZE]
 ) {
     for (int index = 0; index < NUM_SHIPS; ++index) {
@@ -292,7 +292,7 @@ void placePlayerShips(
     }
 }
 
-bool humanTurn(
+bool humanTurn( // Reads and validates player’s shot, updates display/target with HIT or MISS, and returns true if it is a hit
     int displayBoard[BOARD_SIZE][BOARD_SIZE],
     int targetBoard[BOARD_SIZE][BOARD_SIZE]
 ) {
@@ -671,7 +671,7 @@ void enemyTurn_Pro(int playerBoard[BOARD_SIZE][BOARD_SIZE]) {
 
 
 
-bool enemyTurn(
+bool enemyTurn( // Executes enemy firing logic: diff=='1': random shots; diff=='2': scan every Nᵗʰ cell based on the smallest unsunk ship, if hit, then chases adjacent cells; diff=='3': probability logic, if hit, then chases adjacent cells.4
     int board[BOARD_SIZE][BOARD_SIZE],
     char diff,
     int enemySunk[6]
@@ -804,7 +804,7 @@ bool enemyTurn(
     return false;
 }
 
-void updateSunkShips(
+void updateSunkShips( // Increments sunkShips[length] for each fully destroyed consecutive horizontal or vertical run of hits
     int board[BOARD_SIZE][BOARD_SIZE],
     int sunkShips[6]
 ) {
@@ -866,7 +866,7 @@ void updateSunkShips(
     }
 }
 
-bool isGameOver(
+bool isGameOver( // Returns true if no SHIP cells remain when all ships on the board are sunk
     int board[BOARD_SIZE][BOARD_SIZE]
 ) {
     for (int i = 0; i < BOARD_SIZE; ++i) {
@@ -881,7 +881,7 @@ bool isGameOver(
 
 
 
-int main_gameplay_loop(char difficulty_choice) {
+int main_gameplay_loop(char difficulty_choice) { // Main game function: initializes boards, places ships, switches turns (if a hit, shooters will continue their turn), updates sunk counts, displays boards, ends when isGameOver is true
     srand(static_cast<unsigned>(time(nullptr)));
 
     int playerBoard[BOARD_SIZE][BOARD_SIZE];
