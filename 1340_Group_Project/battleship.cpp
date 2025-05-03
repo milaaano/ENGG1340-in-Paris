@@ -345,7 +345,9 @@ bool humanTurn(
     }
 }
 
-//Yera Start
+// Yera Start
+
+// Adds a value for every point where a ship can stand and sheck all the positions so that a map shows the probability of the ship standing
 void initializeProbabilityBoard(int board[BOARD_SIZE][BOARD_SIZE], int probability_board[BOARD_SIZE][BOARD_SIZE], int SHIP_SIZE) {
     //Initialize and annul board proability board
     initializeBoard(probability_board);
@@ -445,7 +447,8 @@ void probable_position(int board[BOARD_SIZE][BOARD_SIZE], int & probable_x, int 
 
 
 // the full logic of the computer to shoor the ships
-void enemyTurn_Pro(int playerBoard[BOARD_SIZE][BOARD_SIZE]) {    
+void enemyTurn_Pro(int playerBoard[BOARD_SIZE][BOARD_SIZE]) { 
+    //Finds the enxt ship to look for, start from the 5 size ship to the 2 sized ship
     int SHIP_SIZE;
     for (int i = 0; i < 5; i++) {
         if (alive_ships[i] != 0) {
@@ -458,6 +461,7 @@ void enemyTurn_Pro(int playerBoard[BOARD_SIZE][BOARD_SIZE]) {
     while (!fired) {
         if (!in_the_process) {
             // Initialize probability board based on ship size
+            // Initialized again all the time to update based on the shots done
             switch (SHIP_SIZE) {
                 case 5:
                     initializeProbabilityBoard(enemyStrikeBoard, enemyProbabilityBoard_5, SHIP_SIZE);
@@ -477,8 +481,10 @@ void enemyTurn_Pro(int playerBoard[BOARD_SIZE][BOARD_SIZE]) {
                     break;
             }
 
+            // prevents from shooting over the boundaries
             if (playerBoard[probable_x][probable_y] == EMPTY || playerBoard[probable_x][probable_y] == SHIP) {
-
+                // check if the shot is succesful 
+                // if succesful updates the board and start the search for the ship boundaries --> sequential logic bi in_the_process variable
                 if (playerBoard[probable_x][probable_y] == SHIP) {
                     cout << "Enemy hit your ship at " << char('A' + probable_y) << probable_x + 1 << "!\n";
                     playerBoard[probable_x][probable_y] = HIT;
@@ -487,6 +493,7 @@ void enemyTurn_Pro(int playerBoard[BOARD_SIZE][BOARD_SIZE]) {
                     SHIP_SIZE_Memory++;
                     fired_x = probable_x;
                     fired_y=probable_y;
+                // check if is not succesful and updates boards
                 } else {
                     cout << "Enemy missed at " << char('A' + probable_y) << probable_x + 1 << ".\n";
                     playerBoard[probable_x][probable_y] = MISS;
@@ -496,13 +503,14 @@ void enemyTurn_Pro(int playerBoard[BOARD_SIZE][BOARD_SIZE]) {
             }
         } 
         else {
-            int direction_i;
+            int direction_i; // the variable for allowing the computer to show in a defined exis and don't forget about the initial position
             if (direction==0){
                 direction_i=fired_x+1;
                 if (direction_i>BOARD_SIZE){
                     end_of_a_ship++;
-                    direction++;
+                    direction++; // updates the exis in which the computer is going to shoot
                 }
+                // checks for the shots again
                 else{
                     if (playerBoard[direction_i][fired_y] == SHIP) {
                         fired_x=direction_i;
@@ -521,6 +529,8 @@ void enemyTurn_Pro(int playerBoard[BOARD_SIZE][BOARD_SIZE]) {
                         fired = true;
                     }
                 }
+
+                // updates the array witht the alive ships to remember which ships are sunk
                 if(end_of_a_ship==2 && SHIP_SIZE_Memory>1){
                     for (int i=0; i<5; i++){
                         if (alive_ships[i]==SHIP_SIZE_Memory){
@@ -532,10 +542,12 @@ void enemyTurn_Pro(int playerBoard[BOARD_SIZE][BOARD_SIZE]) {
                         }
                     }
                 }
+                // annuls the ship boundaries if the ship doen't lie in the axis defined
                 else if(end_of_a_ship==2 && SHIP_SIZE_Memory==1){
                     end_of_a_ship=0;
                 }
             }
+            // the same in other direction
             else if (direction==1){
                 direction_i=fired_x-1;
                 if (direction_i<0){
@@ -726,6 +738,7 @@ bool enemyTurn(
                 } else {
                     cout << "Enemy missed at " << char('A' + nc) << (nr + 1) << ".\n";
                     board[nr][nc] = MISS;
+                    return false;
                 }
             }
             enemyAttacks.clear();
@@ -920,6 +933,7 @@ int main_gameplay_loop(char difficulty_choice) {
         else {
             hit = enemyTurn(playerBoard, difficulty_choice, enemySunk);
             // Just to double check
+            // Cheks th fact that all ships are sunk to end the game if it's true
             bool over=true;
             for (int i = 0; i < 5; i++) {
                 if (alive_ships[i] != 0) {
@@ -942,6 +956,7 @@ int main_gameplay_loop(char difficulty_choice) {
         
         
         //to make the output
+        //Wait for any input to continue printing, otherwise the print won't be executed for long and the board will be cleared
         cout<<"Press Enter to Update board.\n";
         cin.get();
 
