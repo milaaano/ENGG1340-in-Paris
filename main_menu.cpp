@@ -73,6 +73,7 @@ int main() {
           printHeader();
           printMenu();
           cout << "Invalid Choice!\n";
+          cout << "Select an option (1 to 5), or press Enter to refresh: ";
           getline(cin, line);
         }
         // if (line.empty()) continue;       // just Enter → redraw
